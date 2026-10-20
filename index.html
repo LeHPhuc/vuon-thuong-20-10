@@ -970,6 +970,27 @@
       display: none;
     }
 
+    .tarot-container .lightbox-close {
+      top: 14px;
+      right: 14px;
+      width: 36px;
+      height: 36px;
+      background: #ffe8ef;
+      border: 1.5px solid #f4b6c9;
+      color: #a83256;
+      font-size: 1.3rem;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(180, 65, 100, 0.18);
+      z-index: 10;
+    }
+
+    .tarot-container .lightbox-close:hover {
+      background: #d65374;
+      color: #fff;
+      border-color: #d65374;
+      transform: scale(1.08);
+    }
+
     .tarot-header h2 {
       font-family: var(--serif);
       font-size: clamp(1.65rem, 3vw, 2.1rem);
@@ -3123,6 +3144,9 @@
       btnFlowerTarot.addEventListener('click', openFlowerTarot);
       btnCloseTarot.addEventListener('click', closeFlowerTarot);
       btnDoneTarot.addEventListener('click', closeFlowerTarot);
+      tarotBackdrop.addEventListener('click', (e) => {
+        if (e.target === tarotBackdrop) closeFlowerTarot();
+      });
       btnShuffleTarot.addEventListener('click', () => {
         ensureAudioContext();
         playMagicalChime();
