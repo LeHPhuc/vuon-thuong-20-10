@@ -3,68 +3,3465 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Anh Giận Em Rồi</title>
+  <title>Dành tặng Nị, cả một vườn thương - 20/10</title>
+  <meta name="description" content="Từ một bông hoa nhỏ, cả khu vườn yêu thương đang thức giấc dành riêng cho Nị nhân ngày 20/10." />
+  <meta property="og:title" content="Dành tặng Nị, cả một vườn thương - 20/10 ♡" />
+  <meta property="og:description" content="Chạm vào bông hoa nhỏ, một điều dịu dàng sẽ đến với em..." />
+  <meta property="og:type" content="website" />
+
+  <!-- Google Fonts hỗ trợ tiếng Việt đầy đủ và thanh lịch -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400;1,600&family=Dancing+Script:wght@500;600;700&display=swap" rel="stylesheet">
+
   <style>
+    :root {
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --sans: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, sans-serif;
+      --script: 'Dancing Script', cursive;
+      --rose-primary: #d65374;
+      --rose-light: #ff8da6;
+      --rose-soft: #ffeef3;
+      --text-dark: #4a2c38;
+      --text-muted: #7a5c68;
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
       user-select: none;
       -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
     }
 
     html, body {
       width: 100%;
       height: 100%;
       overflow: hidden;
-      font-family: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: radial-gradient(circle at 50% 40%, #232733 0%, #141720 65%, #0c0e14 100%);
-      color: #f2f4f8;
+      font-family: var(--sans);
+      background: #cbe5f6;
+    }
+
+    /* Canvas trải toàn màn hình - Tối ưu GPU layer */
+    #gardenCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      display: block;
+      z-index: 1;
+      cursor: default;
+      transform: translateZ(0);
+    }
+
+    /* Dòng chữ góc trái trên cùng */
+    .corner-note {
+      position: fixed;
+      top: 24px;
+      left: 30px;
+      z-index: 15;
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: clamp(1.02rem, 1.45vw, 1.32rem);
+      color: rgba(78, 95, 116, 0.88);
+      letter-spacing: 0.02em;
+      pointer-events: none;
+      transition: color 0.6s ease, text-shadow 0.6s ease;
+      text-shadow: 0 1px 10px rgba(255, 255, 255, 0.7);
+    }
+
+    body.night-mode .corner-note {
+      color: rgba(255, 236, 210, 0.92);
+      text-shadow: 0 2px 12px rgba(255, 190, 120, 0.45);
+    }
+
+    /* ================= ĐĨA NHẠC XOAY & NỐT NHẠC BAY (GÓC PHẢI TRÊN) ================= */
+    .music-widget {
+      position: fixed;
+      top: 18px;
+      right: 24px;
+      z-index: 25;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 14px 6px 6px;
+      border-radius: 999px;
+      background: rgba(255, 250, 252, 0.88);
+      border: 1px solid rgba(255, 255, 255, 0.95);
+      box-shadow: 0 8px 24px rgba(168, 112, 134, 0.16);
+      cursor: pointer;
+      transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+      will-change: transform;
+    }
+
+    .music-widget:hover {
+      background: rgba(255, 253, 254, 0.96);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px rgba(214, 83, 116, 0.22);
+    }
+
+    .vinyl-wrap {
+      position: relative;
+      width: 38px;
+      height: 38px;
+      flex-shrink: 0;
+    }
+
+    .vinyl-disc {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at center, #fff 0%, #fff 13%, #f794b0 14%, #e25b80 28%, #2d2026 29%, #3d2c34 48%, #261b20 50%, #44313a 70%, #24191e 72%, #3a2931 100%);
+      box-shadow: 0 3px 10px rgba(60, 30, 45, 0.28);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: vinylSpin 5.5s linear infinite;
+      animation-play-state: paused;
+      position: relative;
+      overflow: hidden;
+      will-change: transform;
+    }
+
+    .vinyl-disc::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: conic-gradient(
+        from 30deg,
+        transparent 0deg,
+        rgba(255, 215, 228, 0.24) 35deg,
+        transparent 75deg,
+        transparent 180deg,
+        rgba(255, 215, 228, 0.24) 215deg,
+        transparent 255deg
+      );
+      pointer-events: none;
+    }
+
+    .music-widget.playing .vinyl-disc {
+      animation-play-state: running;
+    }
+
+    @keyframes vinylSpin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .vinyl-arm {
+      position: absolute;
+      top: -2px;
+      right: -3px;
+      width: 14px;
+      height: 22px;
+      pointer-events: none;
+      transform-origin: 10px 4px;
+      transform: rotate(-28deg);
+      transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+      z-index: 2;
+    }
+
+    .music-widget.playing .vinyl-arm {
+      transform: rotate(2deg);
+    }
+
+    .music-info {
+      display: flex;
+      flex-direction: column;
+      text-align: left;
+      max-width: 135px;
+    }
+
+    .music-title {
+      font-size: 0.76rem;
+      font-weight: 600;
+      color: var(--text-dark);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .music-status {
+      font-size: 0.68rem;
+      color: var(--rose-primary);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .eq-bars {
+      display: inline-flex;
+      align-items: flex-end;
+      gap: 2px;
+      height: 10px;
+    }
+
+    .eq-bars span {
+      width: 2px;
+      height: 10px;
+      background: var(--rose-primary);
+      border-radius: 2px;
+      transform-origin: bottom;
+      transform: scaleY(0.3);
+      transition: transform 0.2s ease;
+    }
+
+    .music-widget.playing .eq-bars span:nth-child(1) {
+      animation: eqBounce 0.6s ease-in-out infinite alternate;
+    }
+    .music-widget.playing .eq-bars span:nth-child(2) {
+      animation: eqBounce 0.45s ease-in-out 0.15s infinite alternate;
+    }
+    .music-widget.playing .eq-bars span:nth-child(3) {
+      animation: eqBounce 0.7s ease-in-out 0.3s infinite alternate;
+    }
+
+    @keyframes eqBounce {
+      0% { transform: scaleY(0.3); }
+      100% { transform: scaleY(1); }
+    }
+
+    .floating-notes-container {
+      position: absolute;
+      top: 6px;
+      left: 12px;
+      width: 28px;
+      height: 28px;
+      pointer-events: none;
+      overflow: visible;
+    }
+
+    .music-note-particle {
+      position: absolute;
+      font-size: 0.88rem;
+      color: #d65374;
+      opacity: 0;
+      pointer-events: none;
+      animation: noteFloatUp 2.4s ease-out forwards;
+      will-change: transform, opacity;
+    }
+
+    @keyframes noteFloatUp {
+      0% {
+        opacity: 0;
+        transform: translate3d(0, 4px, 0) scale(0.6) rotate(-10deg);
+      }
+      25% {
+        opacity: 0.92;
+      }
+      100% {
+        opacity: 0;
+        transform: translate3d(var(--tx, -18px), -46px, 0) scale(1.15) rotate(var(--rot, 18deg));
+      }
+    }
+
+    /* ================= TIÊU ĐỀ MÀN HÌNH CHỜ ================= */
+    .intro-header {
+      position: fixed;
+      top: 18%;
+      left: 50%;
+      transform: translate3d(-50%, 0, 0);
+      z-index: 10;
+      text-align: center;
+      width: 90%;
+      max-width: 600px;
+      pointer-events: none;
+      transition: opacity 0.8s ease, transform 0.8s ease;
+      will-change: transform, opacity;
+    }
+
+    .intro-header.hidden {
+      opacity: 0;
+      transform: translate3d(-50%, -18px, 0);
+    }
+
+    .intro-header h1 {
+      font-family: var(--serif);
+      font-weight: 600;
+      font-size: clamp(2.2rem, 4.2vw, 3.35rem);
+      color: #263850;
+      margin-bottom: 10px;
+      letter-spacing: -0.01em;
+      text-shadow: 0 2px 16px rgba(255, 255, 255, 0.65);
+    }
+
+    .intro-header p {
+      font-family: var(--sans);
+      font-weight: 300;
+      font-size: clamp(0.9rem, 1.35vw, 1.08rem);
+      color: #6b7d94;
+      letter-spacing: 0.01em;
+    }
+
+    .status-caption {
+      position: fixed;
+      bottom: 34px;
+      left: 50%;
+      transform: translate3d(-50%, 0, 0);
+      z-index: 10;
+      font-family: var(--sans);
+      font-size: clamp(0.88rem, 1.25vw, 1.02rem);
+      font-weight: 400;
+      color: rgba(74, 85, 104, 0.9);
+      background: rgba(255, 255, 255, 0.78);
+      padding: 9px 24px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      box-shadow: 0 4px 20px rgba(160, 185, 205, 0.25);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.6s ease, transform 0.6s ease;
+      white-space: nowrap;
+      will-change: opacity;
+    }
+
+    .status-caption.visible {
+      opacity: 1;
+    }
+
+    /* ================= TẤM THIỆP CHÚC MỪNG 20/10 KÈM KHUNG ẢNH POLAROID ================= */
+    .card-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      background: rgba(235, 243, 250, 0.28);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+      will-change: opacity;
+    }
+
+    .card-backdrop.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .greeting-card {
+      width: 100%;
+      max-width: 465px;
+      max-height: 92vh;
+      overflow-y: auto;
+      scrollbar-width: none;
+      background: linear-gradient(165deg, rgba(255, 252, 253, 0.94), rgba(255, 244, 248, 0.91));
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 30px;
+      border: 1.5px solid rgba(255, 255, 255, 0.95);
+      box-shadow:
+        0 24px 60px rgba(125, 82, 102, 0.2),
+        0 4px 18px rgba(255, 255, 255, 0.8) inset;
+      padding: 24px 28px 24px;
+      text-align: center;
+      transform: translate3d(0, 24px, 0) scale(0.96);
+      transition: transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+      position: relative;
+      will-change: transform;
+    }
+
+    .greeting-card::-webkit-scrollbar {
+      display: none;
+    }
+
+    .card-backdrop.active .greeting-card {
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+
+    .card-polaroid-stage {
+      position: relative;
+      width: 204px;
+      margin: 4px auto 14px;
+      cursor: pointer;
+    }
+
+    .card-polaroid-stage::before,
+    .card-polaroid-stage::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: #fff;
+      border-radius: 16px;
+      border: 1px solid rgba(240, 210, 220, 0.75);
+      box-shadow: 0 6px 16px rgba(145, 95, 115, 0.1);
+      transition: transform 0.3s ease;
+      pointer-events: none;
+    }
+
+    .card-polaroid-stage::before {
+      transform: rotate(-6deg) translate3d(-4px, 2px, 0);
+      z-index: 1;
+    }
+
+    .card-polaroid-stage::after {
+      transform: rotate(5.5deg) translate3d(4px, 3px, 0);
+      z-index: 2;
+    }
+
+    .card-polaroid-stage:hover::before {
+      transform: rotate(-9deg) translate3d(-7px, 2px, 0);
+    }
+
+    .card-polaroid-stage:hover::after {
+      transform: rotate(8.5deg) translate3d(7px, 3px, 0);
+    }
+
+    .polaroid-frame {
+      position: relative;
+      z-index: 3;
+      background: #ffffff;
+      padding: 8px 8px 26px 8px;
+      border-radius: 16px;
+      box-shadow: 0 10px 24px rgba(168, 96, 120, 0.2);
+      border: 1px solid rgba(255, 235, 242, 0.95);
+      transform: rotate(-1.2deg);
+      transition: transform 0.38s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.28s ease;
+      will-change: transform, opacity;
+    }
+
+    .polaroid-frame.flipping {
+      transform: translate3d(32px, 0, 0) rotate(8deg) scale(0.92);
+      opacity: 0.35;
+    }
+
+    .polaroid-img-wrap {
+      width: 100%;
+      aspect-ratio: 3 / 3.8;
+      border-radius: 10px;
+      overflow: hidden;
+      background: linear-gradient(135deg, #ffeef3, #fce0e8);
+      position: relative;
+    }
+
+    .polaroid-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.4s ease;
+    }
+
+    .card-polaroid-stage:hover .polaroid-img-wrap img {
+      transform: scale(1.04);
+    }
+
+    .polaroid-rose-pin {
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      z-index: 5;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 4px 12px rgba(214, 83, 116, 0.25);
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
-    .message-box {
+    .polaroid-caption {
+      position: absolute;
+      bottom: 5px;
+      left: 8px;
+      right: 8px;
+      font-family: var(--script);
+      font-size: 0.92rem;
+      color: #a14d66;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .polaroid-dots {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+
+    .polaroid-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(214, 83, 116, 0.28);
+      transition: all 0.25s ease;
+    }
+
+    .polaroid-dot.active {
+      width: 16px;
+      border-radius: 99px;
+      background: #d65374;
+    }
+
+    .polaroid-tap-hint {
+      font-size: 0.72rem;
+      color: #9e6b7b;
+      margin-bottom: 10px;
+      opacity: 0.85;
+    }
+
+    .card-salutation {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 1.14rem;
+      color: #a96e7d;
+      margin-bottom: 6px;
+    }
+
+    .card-title {
+      font-family: var(--serif);
+      font-weight: 600;
+      font-size: clamp(1.7rem, 3vw, 2.15rem);
+      line-height: 1.2;
+      color: #5b3744;
+      margin-bottom: 14px;
+    }
+
+    .card-body p {
+      font-family: var(--sans);
+      font-size: 0.89rem;
+      line-height: 1.62;
+      color: #5a4650;
+      margin-bottom: 11px;
+      font-weight: 400;
+    }
+
+    .card-signoff {
+      font-family: var(--sans);
+      font-size: 0.94rem;
+      font-weight: 600;
+      color: #d65374;
+      margin: 14px 0 16px;
+      letter-spacing: 0.01em;
+    }
+
+    .card-actions {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn-pill {
+      appearance: none;
+      border: 1px solid rgba(255, 255, 255, 0.95);
+      background: rgba(255, 255, 255, 0.9);
+      color: #4b3b47;
+      font-family: var(--sans);
+      font-size: 0.84rem;
+      font-weight: 500;
+      padding: 9px 18px;
+      border-radius: 999px;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(140, 105, 120, 0.15);
+      transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease, color 0.22s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .btn-pill.primary {
+      background: linear-gradient(135deg, #ec6f90, #d65374);
+      color: #fff;
+      border-color: rgba(255, 225, 234, 0.6);
+      box-shadow: 0 8px 22px rgba(214, 83, 116, 0.28);
+    }
+
+    .btn-pill.active-mode {
+      background: linear-gradient(135deg, #5d4a7e, #372952);
+      color: #ffe9c8;
+      border-color: rgba(255, 224, 175, 0.7);
+      box-shadow: 0 8px 24px rgba(60, 40, 95, 0.35);
+    }
+
+    .btn-pill:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px rgba(214, 83, 116, 0.24);
+    }
+
+    .btn-pill.primary:hover {
+      background: linear-gradient(135deg, #f27999, #de5b7c);
+      color: #fff;
+    }
+
+    .btn-pill:active {
+      transform: translateY(0);
+    }
+
+    /* ================= KHUNG ẢNH KỶ NIỆM LƠ LỬNG TRONG VƯỜN HOA ================= */
+    .floating-memories {
+      position: fixed;
+      inset: 0;
+      z-index: 12;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.65s ease;
+      will-change: opacity;
+    }
+
+    .floating-memories.visible {
+      opacity: 1;
+    }
+
+    .memory-bubble-anchor {
+      position: absolute;
+      transform: translate3d(-50%, -50%, 0);
+      pointer-events: none;
+    }
+
+    .floating-memories.visible .memory-bubble-anchor {
+      pointer-events: auto;
+    }
+
+    .memory-bubble {
+      width: clamp(124px, 15.5vw, 178px);
+      background: rgba(255, 255, 255, 0.95);
+      padding: 7px 7px 26px 7px;
+      border-radius: 14px;
+      box-shadow: 0 12px 28px rgba(130, 80, 100, 0.22);
+      border: 1.5px solid rgba(255, 255, 255, 0.98);
+      cursor: pointer;
+      transform: rotate(var(--rot, -3deg));
+      animation: memoryFloatGPU 4.6s ease-in-out infinite alternate;
+      animation-delay: var(--delay, 0s);
+      transition: transform 0.28s ease, box-shadow 0.28s ease;
+      will-change: transform;
+    }
+
+    .memory-bubble:hover {
+      transform: translate3d(0, -6px, 0) rotate(0deg) scale(1.1) !important;
+      box-shadow: 0 16px 34px rgba(214, 83, 116, 0.32);
+      z-index: 14;
+    }
+
+    .memory-bubble img {
+      width: 100%;
+      aspect-ratio: 3 / 3.65;
+      object-fit: cover;
+      border-radius: 10px;
+      display: block;
+    }
+
+    .memory-bubble span {
+      position: absolute;
+      bottom: 4px;
+      left: 6px;
+      right: 6px;
       text-align: center;
-      padding: 42px 36px;
+      font-family: var(--script);
+      font-size: clamp(0.84rem, 1.05vw, 0.98rem);
+      color: #9e4760;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    @keyframes memoryFloatGPU {
+      0% {
+        transform: translate3d(0, 0px, 0) rotate(var(--rot, -3deg));
+      }
+      100% {
+        transform: translate3d(0, -11px, 0) rotate(var(--rot, -3deg));
+      }
+    }
+
+    /* ================= LIGHTBOX PHÓNG TO ẢNH KỶ NIỆM ================= */
+    .lightbox-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      background: rgba(42, 26, 34, 0.52);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease;
+      will-change: opacity;
+    }
+
+    .lightbox-backdrop.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .lightbox-card {
+      width: 100%;
+      max-width: 425px;
+      max-height: 94vh;
+      background: #fffdfd;
+      border-radius: 24px;
+      padding: 14px 14px 20px;
+      box-shadow: 0 28px 65px rgba(35, 15, 25, 0.35);
+      text-align: center;
+      position: relative;
+      transform: scale(0.92) translate3d(0, 14px, 0);
+      transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+      will-change: transform;
+    }
+
+    .lightbox-backdrop.active .lightbox-card {
+      transform: scale(1) translate3d(0, 0, 0);
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: -12px;
+      right: -12px;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: none;
+      background: #fff;
+      color: #5b3744;
+      font-size: 1.1rem;
+      cursor: pointer;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s ease;
+      z-index: 2;
+    }
+
+    .lightbox-close:hover {
+      transform: scale(1.1);
+    }
+
+    .lightbox-img-box {
+      width: min(100%, calc(65vh * 0.75));
+      aspect-ratio: 3 / 4;
+      margin: 0 auto 12px;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #fceef2;
+    }
+
+    .lightbox-img-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .lightbox-date {
+      display: inline-block;
+      font-size: 0.74rem;
+      color: #c95b7a;
+      background: #fff0f4;
+      padding: 3px 12px;
+      border-radius: 99px;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    .lightbox-caption {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 1.25rem;
+      color: #4d2f3b;
+      line-height: 1.4;
+      padding: 0 10px;
+      margin-bottom: 14px;
+    }
+
+    .lightbox-nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .lightbox-nav button {
+      border: 1px solid rgba(214, 83, 116, 0.25);
+      background: #fff7f9;
+      color: #7c4355;
+      padding: 6px 16px;
+      border-radius: 99px;
+      font-family: var(--sans);
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .lightbox-nav button:hover {
+      background: #d65374;
+      color: #fff;
+    }
+
+    /* ================= 1. GIAO DIỆN TRÒ CHƠI HỨNG HOA (CATCH GAME HUD) ================= */
+    .catch-hud {
+      position: fixed;
+      top: 68px;
+      left: 50%;
+      transform: translate3d(-50%, -16px, 0);
+      z-index: 18;
+      background: rgba(255, 250, 252, 0.92);
+      border: 1.5px solid rgba(255, 255, 255, 0.96);
+      box-shadow: 0 12px 30px rgba(155, 85, 110, 0.2);
+      border-radius: 999px;
+      padding: 8px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+
+    .catch-hud.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translate3d(-50%, 0, 0);
+    }
+
+    .catch-score-text {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #5b3744;
+      white-space: nowrap;
+    }
+
+    .catch-progress-bar {
+      width: 110px;
+      height: 8px;
+      background: #fce2ea;
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .catch-progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #ff8da6, #d65374);
+      border-radius: 99px;
+      transition: width 0.25s ease;
+    }
+
+    .catch-close-btn {
+      border: none;
+      background: #ffe8ef;
+      color: #a94461;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 99px;
+      cursor: pointer;
+    }
+
+    /* Hộp quà phần thưởng khi hứng đủ 15 bông hoa */
+    .catch-reward-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 32;
+      background: rgba(48, 28, 38, 0.45);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+
+    .catch-reward-modal.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .catch-reward-card {
+      width: 100%;
+      max-width: 410px;
+      background: linear-gradient(165deg, #fffdfd, #fff1f5);
       border-radius: 28px;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+      padding: 28px 26px 24px;
+      text-align: center;
+      border: 2px solid #fff;
+      box-shadow: 0 24px 60px rgba(85, 35, 55, 0.32);
+      transform: scale(0.9);
+      transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .catch-reward-modal.active .catch-reward-card {
+      transform: scale(1);
+    }
+
+    .reward-badge {
+      font-size: 2.6rem;
+      margin-bottom: 8px;
+    }
+
+    .reward-title {
+      font-family: var(--serif);
+      font-size: 1.75rem;
+      color: #5b3744;
+      margin-bottom: 10px;
+    }
+
+    .reward-desc {
+      font-size: 0.9rem;
+      line-height: 1.6;
+      color: #634852;
+      margin-bottom: 18px;
+    }
+
+    .reward-coupon {
+      background: #fff;
+      border: 1.5px dashed #eb86a2;
+      border-radius: 16px;
+      padding: 12px 16px;
+      margin-bottom: 18px;
+      font-size: 0.86rem;
+      color: #b84264;
+      font-weight: 500;
+    }
+
+    /* ================= 2. GIAO DIỆN BÓI HOA (FLOWER TAROT MODAL) ================= */
+    .tarot-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 28;
+      background: rgba(36, 22, 32, 0.48);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+
+    .tarot-backdrop.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .tarot-container {
+      width: 100%;
+      max-width: 680px;
+      max-height: 92vh;
+      overflow-y: auto;
+      scrollbar-width: none;
+      background: linear-gradient(165deg, rgba(255, 252, 253, 0.95), rgba(253, 240, 246, 0.93));
+      border-radius: 28px;
+      border: 1.5px solid #fff;
+      box-shadow: 0 28px 65px rgba(40, 18, 30, 0.35);
+      padding: 24px 24px 22px;
+      text-align: center;
+      position: relative;
+    }
+
+    .tarot-container::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tarot-container .lightbox-close {
+      top: 14px;
+      right: 14px;
+      width: 36px;
+      height: 36px;
+      background: #ffe8ef;
+      border: 1.5px solid #f4b6c9;
+      color: #a83256;
+      font-size: 1.3rem;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(180, 65, 100, 0.18);
+      z-index: 10;
+    }
+
+    .tarot-container .lightbox-close:hover {
+      background: #d65374;
+      color: #fff;
+      border-color: #d65374;
+      transform: scale(1.08);
+    }
+
+    .tarot-header h2 {
+      font-family: var(--serif);
+      font-size: clamp(1.65rem, 3vw, 2.1rem);
+      color: #5b3744;
+      margin-bottom: 4px;
+    }
+
+    .tarot-header p {
+      font-size: 0.86rem;
+      color: #875e6c;
+      margin-bottom: 18px;
+    }
+
+    .tarot-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .tarot-card {
+      perspective: 900px;
+      height: 215px;
+      cursor: pointer;
+    }
+
+    .tarot-card-inner {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+      border-radius: 18px;
+      box-shadow: 0 8px 22px rgba(140, 80, 105, 0.16);
+    }
+
+    .tarot-card:hover .tarot-card-inner {
+      transform: translateY(-4px);
+    }
+
+    .tarot-card.flipped .tarot-card-inner {
+      transform: rotateY(180deg);
+    }
+
+    .tarot-face {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      border-radius: 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+    }
+
+    .tarot-back {
+      background: linear-gradient(145deg, #f9d1de, #f3b0c6);
+      border: 2px solid #fff;
+    }
+
+    .tarot-back-frame {
+      width: 100%;
+      height: 100%;
+      border: 1.5px dashed rgba(255, 255, 255, 0.85);
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: #8f3955;
+    }
+
+    .tarot-back-icon {
+      font-size: 2rem;
+      filter: drop-shadow(0 2px 6px rgba(255, 255, 255, 0.7));
+    }
+
+    .tarot-back-label {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .tarot-front {
+      background: #ffffff;
+      border: 2px solid #f8d4e0;
+      transform: rotateY(180deg);
+      justify-content: space-between;
+      padding: 12px 10px;
+    }
+
+    .tarot-flower-icon {
+      font-size: 1.85rem;
+      line-height: 1;
+    }
+
+    .tarot-flower-name {
+      font-family: var(--serif);
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: #c24267;
+    }
+
+    .tarot-omen-tag {
+      font-size: 0.68rem;
+      background: #fff0f4;
+      color: #b54565;
+      padding: 2px 9px;
+      border-radius: 99px;
+      font-weight: 600;
+    }
+
+    .tarot-msg {
+      font-size: 0.74rem;
+      line-height: 1.42;
+      color: #573e48;
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* Hộp hiển thị chi tiết thông điệp lá bài vừa lật */
+    .tarot-reading-box {
+      background: #fff7fa;
+      border: 1px solid #f7d2df;
+      border-radius: 16px;
+      padding: 12px 16px;
+      margin-bottom: 14px;
+      text-align: center;
+      min-height: 64px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .tarot-reading-title {
+      font-family: var(--serif);
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: #b83b60;
+      margin-bottom: 4px;
+    }
+
+    .tarot-reading-text {
+      font-size: 0.86rem;
+      color: #523842;
+      line-height: 1.55;
+    }
+
+    /* ================= 3. GIAO DIỆN NGUYỆN ƯỚC & THẢ ĐÈN TRỜI ĐÊM ================= */
+    .wish-panel {
+      position: fixed;
+      bottom: 84px;
+      left: 50%;
+      transform: translate3d(-50%, 20px, 0);
+      z-index: 19;
+      width: 92%;
+      max-width: 440px;
+      background: linear-gradient(160deg, rgba(28, 22, 48, 0.88), rgba(45, 28, 62, 0.88));
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      max-width: 90vw;
-      animation: fadeIn 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      border: 1px solid rgba(255, 215, 160, 0.45);
+      box-shadow: 0 20px 50px rgba(8, 5, 20, 0.55), 0 0 28px rgba(255, 180, 95, 0.18);
+      border-radius: 24px;
+      padding: 18px 20px 16px;
+      text-align: center;
+      color: #fff5e6;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.45s ease, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
-    h1 {
-      font-family: 'Cormorant Garamond', Georgia, serif;
-      font-size: clamp(2.4rem, 6vw, 4.2rem);
-      font-weight: 700;
-      letter-spacing: 0.01em;
-      color: #ffffff;
-      text-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+    .wish-panel.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translate3d(-50%, 0, 0);
     }
 
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(14px) scale(0.97);
+    .wish-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .wish-panel-title {
+      font-family: var(--serif);
+      font-size: 1.38rem;
+      font-weight: 600;
+      color: #ffdfa8;
+    }
+
+    .wish-minimize-btn {
+      border: 1px solid rgba(255, 220, 170, 0.35);
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffe2b5;
+      font-size: 0.74rem;
+      padding: 3px 10px;
+      border-radius: 99px;
+      cursor: pointer;
+    }
+
+    .wish-panel-sub {
+      font-size: 0.78rem;
+      color: rgba(255, 235, 210, 0.78);
+      text-align: left;
+      margin-bottom: 10px;
+    }
+
+    .wish-presets {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding-bottom: 8px;
+      margin-bottom: 6px;
+    }
+
+    .wish-presets::-webkit-scrollbar {
+      display: none;
+    }
+
+    .wish-chip {
+      border: 1px solid rgba(255, 210, 150, 0.35);
+      background: rgba(255, 235, 205, 0.1);
+      color: #ffe7c2;
+      font-size: 0.72rem;
+      padding: 4px 11px;
+      border-radius: 99px;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .wish-chip:hover {
+      background: rgba(255, 200, 120, 0.28);
+    }
+
+    .wish-input-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .wish-input {
+      flex: 1;
+      border: 1px solid rgba(255, 215, 160, 0.45);
+      background: rgba(15, 11, 28, 0.65);
+      color: #fff8ed;
+      font-family: var(--sans);
+      font-size: 0.85rem;
+      padding: 10px 14px;
+      border-radius: 14px;
+      outline: none;
+      user-select: text;
+      -webkit-user-select: text;
+    }
+
+    .wish-input::placeholder {
+      color: rgba(255, 230, 200, 0.45);
+    }
+
+    .wish-input:focus {
+      border-color: #ffbe6b;
+      box-shadow: 0 0 12px rgba(255, 185, 95, 0.3);
+    }
+
+    .wish-send-btn {
+      border: none;
+      background: linear-gradient(135deg, #ffb85c, #eb7b39);
+      color: #291306;
+      font-family: var(--sans);
+      font-size: 0.84rem;
+      font-weight: 600;
+      padding: 10px 16px;
+      border-radius: 14px;
+      cursor: pointer;
+      white-space: nowrap;
+      box-shadow: 0 6px 18px rgba(240, 135, 55, 0.38);
+      transition: transform 0.2s ease;
+    }
+
+    .wish-send-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    /* ================= THANH ĐIỀU KHIỂN DƯỚI ĐÁY ================= */
+    .bottom-controls {
+      position: fixed;
+      bottom: 18px;
+      left: 50%;
+      transform: translate3d(-50%, 20px, 0);
+      z-index: 16;
+      display: flex;
+      gap: 8px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease, transform 0.5s ease;
+      flex-wrap: wrap;
+      justify-content: center;
+      width: 96%;
+      max-width: 780px;
+      will-change: transform, opacity;
+    }
+
+    .bottom-controls.visible {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translate3d(-50%, 0, 0);
+    }
+
+    @media (max-width: 600px) {
+      .corner-note {
+        top: 16px;
+        left: 14px;
+        font-size: 0.92rem;
+        max-width: 50vw;
       }
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
+      .music-widget {
+        top: 12px;
+        right: 12px;
+        padding: 5px 11px 5px 5px;
+      }
+      .music-info {
+        max-width: 96px;
+      }
+      .intro-header {
+        top: 16%;
+      }
+      .greeting-card {
+        padding: 20px 18px 20px;
+        border-radius: 24px;
+      }
+      .card-polaroid-stage {
+        width: 168px;
+      }
+      .card-body p {
+        font-size: 0.85rem;
+      }
+      .btn-pill {
+        padding: 8px 12px;
+        font-size: 0.76rem;
+      }
+      .memory-bubble {
+        width: 102px;
+        padding: 5px 5px 20px 5px;
+      }
+      .tarot-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
+      .tarot-card {
+        height: 190px;
+      }
+      .wish-panel {
+        bottom: 102px;
+        padding: 14px 14px 12px;
       }
     }
   </style>
 </head>
 <body>
-  <div class="message-box">
-    <h1>Anh Giận Em Rồi</h1>
+
+  <!-- Dòng chữ nhỏ góc trên bên trái -->
+  <div class="corner-note">Dành cho Nị, cả một vườn yêu thương</div>
+
+  <!-- Đĩa nhạc xoay góc phải trên cùng -->
+  <div id="musicWidget" class="music-widget" title="Bật / Tắt nhạc nền">
+    <div class="floating-notes-container" id="notesContainer"></div>
+    <div class="vinyl-wrap">
+      <div class="vinyl-disc"></div>
+      <svg class="vinyl-arm" viewBox="0 0 24 36" fill="none">
+        <circle cx="17" cy="6" r="4" fill="#d8a2b2" stroke="#fff" stroke-width="1.2"/>
+        <path d="M17 6L12 24L7 29" stroke="#c8899b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="4" y="27" width="5" height="4" rx="1" transform="rotate(-35 4 27)" fill="#a6536b"/>
+      </svg>
+    </div>
+    <div class="music-info">
+      <span class="music-title" id="musicTitleText">Until I Found You ♪</span>
+      <span class="music-status">
+        <span class="eq-bars"><span></span><span></span><span></span></span>
+        <span id="musicStatusText">Chạm hoa để phát</span>
+      </span>
+    </div>
   </div>
+
+  <!-- Thẻ Audio ẩn phục vụ phát file MP3 -->
+  <audio id="bgAudio" loop preload="auto"></audio>
+
+  <!-- Tiêu đề màn hình chờ ban đầu -->
+  <div id="introHeader" class="intro-header">
+    <h1>Từ một bông hoa nhỏ...</h1>
+    <p>Chạm vào hoa, một điều dịu dàng sẽ đến với em</p>
+  </div>
+
+  <!-- Phụ đề phía dưới khi khu vườn bắt đầu nở -->
+  <div id="statusCaption" class="status-caption">
+    Từ một bông hoa, cả khu vườn đang thức giấc...
+  </div>
+
+  <!-- Các khung ảnh kỷ niệm lơ lửng trên vườn hoa -->
+  <div id="floatingMemories" class="floating-memories"></div>
+
+  <!-- 1. HUD Trò Chơi Hứng Hoa -->
+  <div id="catchHud" class="catch-hud">
+    <span class="catch-score-text" id="catchScoreText">Giỏ hoa của Nị: 0 / 15 🌸</span>
+    <div class="catch-progress-bar">
+      <div class="catch-progress-fill" id="catchProgressFill"></div>
+    </div>
+    <button id="btnStopCatch" class="catch-close-btn" type="button">Thoát ×</button>
+  </div>
+
+  <!-- Modal phần thưởng khi hứng đủ 15 bông hoa -->
+  <div id="catchRewardModal" class="catch-reward-modal">
+    <div class="catch-reward-card">
+      <div class="reward-badge">🧺🌸✨</div>
+      <h3 class="reward-title">Giỏ Hoa Đầy Ắp Yêu Thương!</h3>
+      <p class="reward-desc">
+        Chúc mừng Nị dễ thương đã hứng trọn 15 đóa hoa may mắn trong khu vườn 20/10!
+      </p>
+      <div class="reward-coupon">
+        🎁 <strong>Đặc quyền dành riêng cho Nị:</strong><br>
+        1.000 cái ôm ấm áp + 1 buổi đi ăn món Nị thích nhất + Đặc quyền được anh chiều chuộng suốt 365 ngày tới ♡
+      </div>
+      <div class="card-actions">
+        <button id="btnPlayCatchAgain" class="btn-pill" type="button">🌸 Hứng hoa tiếp</button>
+        <button id="btnCloseCatchReward" class="btn-pill primary" type="button">💖 Ngắm vườn hoa</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Modal Bói Hoa (Lật thẻ hoa nhận thông điệp) -->
+  <div id="tarotBackdrop" class="tarot-backdrop">
+    <div class="tarot-container">
+      <button id="btnCloseTarot" class="lightbox-close" type="button" aria-label="Đóng">×</button>
+      <div class="tarot-header">
+        <h2>🔮 Bói Hoa Dành Cho Nị</h2>
+        <p>Hãy lắng nghe trực giác và chạm vào những lá bài hoa đang gọi tên em nhé ✨</p>
+      </div>
+
+      <div id="tarotReadingBox" class="tarot-reading-box">
+        <div id="tarotReadingTitle" class="tarot-reading-title">✨ Chạm vào một lá bài bất kỳ bên dưới ✨</div>
+        <div id="tarotReadingText" class="tarot-reading-text">Mỗi loài hoa trong khu vườn đều giữ một lời tiên tri ngọt ngào dành riêng cho Nị nhân ngày 20/10.</div>
+      </div>
+
+      <div id="tarotGrid" class="tarot-grid"></div>
+
+      <div class="card-actions">
+        <button id="btnShuffleTarot" class="btn-pill" type="button">🔄 Xáo bài & Rút lại</button>
+        <button id="btnDoneTarot" class="btn-pill primary" type="button">🌷 Quay lại vườn hoa</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Khung Nhập Điều Ước & Thả Đèn Trời Đêm -->
+  <div id="wishPanel" class="wish-panel">
+    <div class="wish-panel-header">
+      <span class="wish-panel-title">🏮 Nguyện Ước Đêm Trăng</span>
+      <button id="btnCloseWishMode" class="wish-minimize-btn" type="button">☀️ Về ban ngày</button>
+    </div>
+    <p class="wish-panel-sub">Viết điều ước của Nị rồi thả chiếc đèn lồng bay lên bầu trời sao lung linh nhé:</p>
+    <div class="wish-presets" id="wishPresets">
+      <button type="button" class="wish-chip">Mong tụi mình mãi bình yên bên nhau ♡</button>
+      <button type="button" class="wish-chip">Ước luôn rạng rỡ, xinh đẹp & nhiều niềm vui ✨</button>
+      <button type="button" class="wish-chip">Mọi dự định sắp tới đều nở hoa rực rỡ 🌸</button>
+    </div>
+    <form id="wishForm" class="wish-input-row">
+      <input
+        id="wishInput"
+        class="wish-input"
+        type="text"
+        maxlength="70"
+        placeholder="Nhập điều ước của Nị vào đây..."
+        autocomplete="off"
+      />
+      <button class="wish-send-btn" type="submit">✨ Thả đèn</button>
+    </form>
+  </div>
+
+  <!-- Tấm thiệp lời chúc 20/10 -->
+  <div id="cardBackdrop" class="card-backdrop">
+    <div class="greeting-card">
+      <div id="cardPolaroidStage" class="card-polaroid-stage" title="Chạm để xem bức ảnh tiếp theo">
+        <div id="cardPolaroidFrame" class="polaroid-frame">
+          <div class="polaroid-rose-pin" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 64 64" fill="none">
+              <circle cx="32" cy="30" r="16" fill="#FF8DA6"/>
+              <circle cx="32" cy="30" r="11" fill="#FFAEC2"/>
+              <path d="M26 28C26 24 30 22 34 23C38 24 39 29 35 32C31 35 25 32 25 27" stroke="#E0456B" stroke-width="2.8" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="polaroid-img-wrap">
+            <img id="cardPhotoImg" src="" alt="Ảnh của Nị" />
+          </div>
+          <div id="cardPhotoCaption" class="polaroid-caption">Đóa hoa đẹp nhất ♡</div>
+        </div>
+      </div>
+
+      <div id="polaroidDots" class="polaroid-dots"></div>
+      <div class="polaroid-tap-hint">Chạm vào ảnh để lật xem tiếp ✨</div>
+
+      <div class="card-salutation">Gửi Nị dễ thương,</div>
+
+      <h2 class="card-title">
+        Mong những điều<br>
+        đẹp đẽ<br>
+        luôn nở bên Nị.
+      </h2>
+
+      <div class="card-body">
+        <p>
+          Một bông hoa có thể làm một ngày thêm đẹp.<br>
+          Còn em, làm thế giới này dịu dàng hơn.
+        </p>
+        <p>
+          Nhân ngày 20/10, chúc Nị luôn được yêu thương, trân trọng và có thật nhiều niềm vui. Mong Nị đủ bình yên để tận hưởng những điều nhỏ bé, đủ tự tin để theo đuổi những điều mình yêu.
+        </p>
+        <p>
+          Hôm nay và cả những ngày sau,<br>
+          hãy cứ rạng rỡ theo cách của riêng mình nhé.
+        </p>
+      </div>
+
+      <div class="card-signoff">Gửi đến người anh yêu thật nhiều niềm vui ♡</div>
+
+      <div class="card-actions">
+        <button id="btnViewGarden" class="btn-pill primary" type="button">
+          🌸 Ngắm vườn hoa & Khám phá điều bất ngờ
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lightbox phóng to ảnh khi chạm vào các khung ảnh trong vườn -->
+  <div id="lightboxBackdrop" class="lightbox-backdrop">
+    <div class="lightbox-card">
+      <button id="btnCloseLightbox" class="lightbox-close" type="button" aria-label="Đóng">×</button>
+      <div class="lightbox-img-box">
+        <img id="lightboxImg" src="" alt="Kỷ niệm của Nị" />
+      </div>
+      <div id="lightboxDate" class="lightbox-date">Khoảnh khắc dịu dàng</div>
+      <div id="lightboxCaption" class="lightbox-caption"></div>
+      <div class="lightbox-nav">
+        <button id="btnPrevPhoto" type="button">← Ảnh trước</button>
+        <button id="btnNextPhoto" type="button">Ảnh tiếp →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Thanh điều khiển dưới đáy màn hình -->
+  <div id="bottomControls" class="bottom-controls">
+    <button id="btnCatchGame" class="btn-pill primary" type="button">🧺 Hứng hoa</button>
+    <button id="btnFlowerTarot" class="btn-pill primary" type="button">🔮 Bói hoa</button>
+    <button id="btnWishLantern" class="btn-pill primary" type="button">🏮 Nguyện ước</button>
+    <button id="btnOpenGallery" class="btn-pill" type="button">📸 Album Nị</button>
+    <button id="btnReopenCard" class="btn-pill" type="button">💌 Lời chúc</button>
+    <button id="btnRebloom" class="btn-pill" type="button">🌷 Nở lại</button>
+  </div>
+
+  <!-- Canvas chính vẽ toàn bộ vườn hoa hồng + trò chơi hứng hoa + đèn trời đêm -->
+  <canvas id="gardenCanvas"></canvas>
+
+  <script>
+    (() => {
+      /* ==========================================================================
+         CẤU HÌNH CÁ NHÂN HOÁ DÀNH CHO NỊ
+      ========================================================================== */
+      const USER_CONFIG = {
+        songTitle: 'Until I Found You ♪',
+        musicUrl: './assets/music/bg-music.mp3',
+        photos: [
+          {
+            src: './assets/images/ni-1.jpg',
+            focus: 'center top',
+            shortLabel: 'Đóa hoa đẹp nhất ♡',
+            date: 'Dịu dàng bên hoa',
+            caption: 'Hoa trên tay em rất đẹp, nhưng trong mắt anh, Nị mới là đóa hoa rạng rỡ và dịu dàng nhất.'
+          },
+          {
+            src: './assets/images/ni-2.jpg',
+            focus: 'center 35%',
+            shortLabel: 'Ánh nhìn thương nhớ ✨',
+            date: 'Phố lên đèn cùng em',
+            caption: 'Giữa muôn vàn ánh đèn lung linh đêm phố cổ, ánh mắt anh vẫn chỉ dừng lại ở nơi có Nị.'
+          },
+          {
+            src: './assets/images/ni-3.jpg',
+            focus: 'center top',
+            shortLabel: 'Nét cười dịu êm 🤍',
+            date: 'Khoảnh khắc bình yên',
+            caption: 'Chẳng cần sắc màu rực rỡ, chỉ một nụ cười khẽ của em cũng đủ làm tim anh rung động.'
+          },
+          {
+            src: './assets/images/ni-4.jpg',
+            focus: 'center 6%',
+            shortLabel: 'Em bé đáng yêu 🎀',
+            date: 'Công chúa của anh',
+            caption: 'Lúc nào cũng ngọt ngào và đáng yêu thế này hỏi sao anh không thương Nị thật nhiều cho được ♡'
+          }
+        ]
+      };
+
+      // Danh sách các lá bài Bói Hoa Tarot
+      const TAROT_CARDS_DATA = [
+        {
+          icon: '🌹',
+          name: 'Hoa Hồng Phấn',
+          tag: 'Quẻ Được Cưng Chiều',
+          message: 'Vũ trụ nhắn rằng: Nị sinh ra là để được yêu thương và nâng niu. Sắp tới sẽ có thật nhiều niềm vui bất ngờ và những buổi hẹn hò ngọt ngào đang chờ đón em.'
+        },
+        {
+          icon: '🌺',
+          name: 'Hoa Mẫu Đơn',
+          tag: 'Quẻ Rạng Rỡ & May Mắn',
+          message: 'Nụ cười của Nị chính là bùa may mắn! Mọi dự định sắp tới của em đều sẽ nở hoa rực rỡ, công việc thuận lợi và luôn ngập tràn tiếng cười.'
+        },
+        {
+          icon: '🔔',
+          name: 'Hoa Linh Lan',
+          tag: 'Quẻ Bình Yên Dịu Dàng',
+          message: 'Mọi muộn phiền rồi sẽ tan biến như sương sớm. Những ngày tới của Nị sẽ chỉ toàn là sự nhẹ nhõm, an nhiên và vòng tay ấm áp luôn ở bên cạnh.'
+        },
+        {
+          icon: '💐',
+          name: 'Hoa Cẩm Tú Cầu',
+          tag: 'Quẻ Gắn Kết Trọn Vẹn',
+          message: 'Tình cảm chân thành đang bao bọc lấy em. Có một người luôn âm thầm dõi theo, trân trọng từng thói quen nhỏ xíu và thương Nị nhiều hơn mỗi ngày.'
+        },
+        {
+          icon: '🌷',
+          name: 'Hoa Tulip Kem',
+          tag: 'Quẻ Tự Tin Tỏa Sáng',
+          message: 'Hãy cứ tự tin theo đuổi điều em yêu thích nhé! Vẻ đẹp và sự dịu dàng của Nị luôn khiến thế giới xung quanh trở nên ấm áp và đáng yêu hơn.'
+        },
+        {
+          icon: '🌻',
+          name: 'Hoa Nắng Mai',
+          tag: 'Quẻ Năng Lượng Ngọt Ngào',
+          message: 'Hôm nay và cả những ngày sau, Nị sẽ nhận được thật nhiều món quà tinh thần và những lời khen làm em tủm tỉm cười cả ngày!'
+        }
+      ];
+
+      function createRomanticPlaceholderSVG(index, label) {
+        const themes = [
+          { bg1: '#ffdde7', bg2: '#fcbad0', accent: '#e05378' },
+          { bg1: '#f9e3d8', bg2: '#f7c5b4', accent: '#d96b52' },
+          { bg1: '#e8dff9', bg2: '#cfb8f5', accent: '#875ec7' },
+          { bg1: '#dff2f6', bg2: '#b8e1ec', accent: '#4893a6' }
+        ];
+        const t = themes[index % themes.length];
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+          <defs>
+            <linearGradient id="g${index}" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="${t.bg1}"/>
+              <stop offset="100%" stop-color="${t.bg2}"/>
+            </linearGradient>
+          </defs>
+          <rect width="400" height="400" fill="url(#g${index})"/>
+          <circle cx="200" cy="175" r="95" fill="rgba(255,255,255,0.58)"/>
+          <circle cx="200" cy="175" r="72" fill="rgba(255,255,255,0.82)"/>
+          <path d="M200 135 C175 110, 135 130, 135 165 C135 205, 200 235, 200 245 C200 235, 265 205, 265 165 C265 130, 225 110, 200 135 Z" fill="${t.accent}" opacity="0.82"/>
+          <text x="200" y="315" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-size="23" fill="#5b3744">${label}</text>
+        </svg>`;
+        return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+      }
+
+      /* ==========================================================================
+         HỆ THỐNG ÂM NHẠC
+      ========================================================================== */
+      const bgAudio = document.getElementById('bgAudio');
+      const musicWidget = document.getElementById('musicWidget');
+      const musicTitleText = document.getElementById('musicTitleText');
+      const musicStatusText = document.getElementById('musicStatusText');
+      const notesContainer = document.getElementById('notesContainer');
+
+      musicTitleText.textContent = USER_CONFIG.songTitle;
+
+      const soundState = {
+        isPlaying: false,
+        usingSynthFallback: false,
+        mp3Available: false,
+        audioCtx: null,
+        synthTimer: null,
+        noteParticleTimer: null,
+        stepIndex: 0
+      };
+
+      bgAudio.src = USER_CONFIG.musicUrl;
+      bgAudio.volume = 0;
+
+      bgAudio.addEventListener('canplaythrough', () => {
+        soundState.mp3Available = true;
+      });
+      bgAudio.addEventListener('error', () => {
+        soundState.mp3Available = false;
+        soundState.usingSynthFallback = true;
+      });
+
+      function ensureAudioContext() {
+        if (!soundState.audioCtx) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) {
+            soundState.audioCtx = new AudioContextClass();
+          }
+        }
+        if (soundState.audioCtx && soundState.audioCtx.state === 'suspended') {
+          soundState.audioCtx.resume();
+        }
+      }
+
+      function playMusicBoxNote(freq, duration = 1.1, volume = 0.06, delaySec = 0) {
+        if (!soundState.audioCtx) return;
+        const ctxAudio = soundState.audioCtx;
+        const startTime = ctxAudio.currentTime + delaySec;
+
+        const osc = ctxAudio.createOscillator();
+        const gain = ctxAudio.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, startTime);
+
+        gain.gain.setValueAtTime(0.0001, startTime);
+        gain.gain.exponentialRampToValueAtTime(volume, startTime + 0.025);
+        gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+
+        osc.connect(gain);
+        gain.connect(ctxAudio.destination);
+
+        osc.start(startTime);
+        osc.stop(startTime + duration + 0.04);
+      }
+
+      function playMagicalChime() {
+        ensureAudioContext();
+        const chimeNotes = [523.25, 659.25, 783.99, 1046.5];
+        chimeNotes.forEach((f, idx) => {
+          playMusicBoxNote(f, 1.2, 0.055, idx * 0.08);
+        });
+      }
+
+      const ROMANTIC_MELODY = [
+        { melody: 659.25, bass: 261.63 },
+        { melody: 783.99, bass: 392.00 },
+        { melody: 587.33, bass: 196.00 },
+        { melody: 659.25, bass: 392.00 },
+        { melody: 523.25, bass: 220.00 },
+        { melody: 659.25, bass: 329.63 },
+        { melody: 493.88, bass: 164.81 },
+        { melody: 587.33, bass: 329.63 }
+      ];
+
+      function startSynthLoop() {
+        stopSynthLoop();
+        ensureAudioContext();
+        const playStep = () => {
+          if (!soundState.isPlaying) return;
+          const item = ROMANTIC_MELODY[soundState.stepIndex % ROMANTIC_MELODY.length];
+          playMusicBoxNote(item.melody, 1.8, 0.075, 0);
+          playMusicBoxNote(item.bass, 2.0, 0.04, 0.18);
+          soundState.stepIndex++;
+        };
+        playStep();
+        soundState.synthTimer = setInterval(playStep, 680);
+      }
+
+      function stopSynthLoop() {
+        if (soundState.synthTimer) {
+          clearInterval(soundState.synthTimer);
+          soundState.synthTimer = null;
+        }
+      }
+
+      function spawnMusicNoteParticle() {
+        if (!soundState.isPlaying) return;
+        const symbols = ['♪', '♫', '♡', '♬'];
+        const el = document.createElement('span');
+        el.className = 'music-note-particle';
+        el.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+        const tx = -22 + Math.random() * 34;
+        const rot = -25 + Math.random() * 50;
+        el.style.setProperty('--tx', `${tx}px`);
+        el.style.setProperty('--rot', `${rot}deg`);
+        notesContainer.appendChild(el);
+        setTimeout(() => el.remove(), 2400);
+      }
+
+      function setMusicUI(playing) {
+        soundState.isPlaying = playing;
+        musicWidget.classList.toggle('playing', playing);
+        musicStatusText.textContent = playing ? 'Đang phát nhạc' : 'Đang tạm dừng';
+
+        if (soundState.noteParticleTimer) {
+          clearInterval(soundState.noteParticleTimer);
+          soundState.noteParticleTimer = null;
+        }
+        if (playing) {
+          spawnMusicNoteParticle();
+          soundState.noteParticleTimer = setInterval(spawnMusicNoteParticle, 1100);
+        }
+      }
+
+      function startMusicWithFadeIn() {
+        if (soundState.isPlaying) return;
+
+        if (!soundState.usingSynthFallback) {
+          bgAudio.volume = 0.25;
+          const playPromise = bgAudio.play();
+          if (playPromise !== undefined) {
+            playPromise.then(() => {
+              setMusicUI(true);
+              let vol = 0.25;
+              const fadeTimer = setInterval(() => {
+                vol = Math.min(0.85, vol + 0.06);
+                bgAudio.volume = vol;
+                if (vol >= 0.85) clearInterval(fadeTimer);
+              }, 110);
+            }).catch(() => {
+              soundState.usingSynthFallback = true;
+              ensureAudioContext();
+              playMagicalChime();
+              setMusicUI(true);
+              startSynthLoop();
+            });
+            return;
+          }
+        }
+
+        soundState.usingSynthFallback = true;
+        ensureAudioContext();
+        playMagicalChime();
+        setMusicUI(true);
+        startSynthLoop();
+      }
+
+      function toggleMusic() {
+        if (soundState.isPlaying) {
+          setMusicUI(false);
+          bgAudio.pause();
+          stopSynthLoop();
+        } else {
+          startMusicWithFadeIn();
+        }
+      }
+
+      musicWidget.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleMusic();
+      });
+
+      /* ==========================================================================
+         QUẢN LÝ ẢNH POLAROID TRÊN THIỆP & TRONG VƯỜN HOA + LIGHTBOX
+      ========================================================================== */
+      const cardPolaroidStage = document.getElementById('cardPolaroidStage');
+      const cardPolaroidFrame = document.getElementById('cardPolaroidFrame');
+      const cardPhotoImg = document.getElementById('cardPhotoImg');
+      const cardPhotoCaption = document.getElementById('cardPhotoCaption');
+      const polaroidDots = document.getElementById('polaroidDots');
+      const floatingMemories = document.getElementById('floatingMemories');
+
+      const lightboxBackdrop = document.getElementById('lightboxBackdrop');
+      const lightboxImg = document.getElementById('lightboxImg');
+      const lightboxDate = document.getElementById('lightboxDate');
+      const lightboxCaption = document.getElementById('lightboxCaption');
+      const btnCloseLightbox = document.getElementById('btnCloseLightbox');
+      const btnPrevPhoto = document.getElementById('btnPrevPhoto');
+      const btnNextPhoto = document.getElementById('btnNextPhoto');
+      const btnOpenGallery = document.getElementById('btnOpenGallery');
+
+      let currentCardPhotoIdx = 0;
+      let currentLightboxIdx = 0;
+
+      function loadPhotoWithFallback(imgElement, photoIndex) {
+        const item = USER_CONFIG.photos[photoIndex];
+        imgElement.style.objectPosition = item.focus || 'center center';
+        imgElement.onerror = () => {
+          imgElement.onerror = null;
+          imgElement.src = createRomanticPlaceholderSVG(photoIndex, item.shortLabel);
+        };
+        imgElement.src = item.src;
+      }
+
+      function renderCardPolaroid(index, animateFlip = false) {
+        const total = USER_CONFIG.photos.length;
+        currentCardPhotoIdx = (index + total) % total;
+        const item = USER_CONFIG.photos[currentCardPhotoIdx];
+
+        if (animateFlip) {
+          cardPolaroidFrame.classList.add('flipping');
+          setTimeout(() => {
+            loadPhotoWithFallback(cardPhotoImg, currentCardPhotoIdx);
+            cardPhotoCaption.textContent = item.shortLabel;
+            cardPolaroidFrame.classList.remove('flipping');
+          }, 180);
+        } else {
+          loadPhotoWithFallback(cardPhotoImg, currentCardPhotoIdx);
+          cardPhotoCaption.textContent = item.shortLabel;
+        }
+
+        Array.from(polaroidDots.children).forEach((dot, i) => {
+          dot.classList.toggle('active', i === currentCardPhotoIdx);
+        });
+      }
+
+      function initPhotoComponents() {
+        polaroidDots.innerHTML = '';
+        USER_CONFIG.photos.forEach((_, idx) => {
+          const dot = document.createElement('span');
+          dot.className = 'polaroid-dot' + (idx === 0 ? ' active' : '');
+          polaroidDots.appendChild(dot);
+        });
+
+        renderCardPolaroid(0, false);
+
+        floatingMemories.innerHTML = '';
+        const isSmallScreen = window.innerWidth < 640;
+        const positions = isSmallScreen
+          ? [
+              { left: '22%', top: '24%', rot: '-5deg', delay: '0s' },
+              { left: '78%', top: '24%', rot: '4.5deg', delay: '0.8s' },
+              { left: '22%', top: '50%', rot: '3.5deg', delay: '1.5s' },
+              { left: '78%', top: '50%', rot: '-4deg', delay: '2.1s' }
+            ]
+          : [
+              { left: '14%', top: '36%', rot: '-5.5deg', delay: '0s' },
+              { left: '33%', top: '23%', rot: '3.5deg', delay: '0.8s' },
+              { left: '67%', top: '23%', rot: '-3.5deg', delay: '1.5s' },
+              { left: '86%', top: '36%', rot: '5.5deg', delay: '2.1s' }
+            ];
+
+        USER_CONFIG.photos.forEach((item, idx) => {
+          const pos = positions[idx % positions.length];
+          const anchor = document.createElement('div');
+          anchor.className = 'memory-bubble-anchor';
+          anchor.style.left = pos.left;
+          anchor.style.top = pos.top;
+
+          const bubble = document.createElement('div');
+          bubble.className = 'memory-bubble';
+          bubble.style.setProperty('--rot', pos.rot);
+          bubble.style.setProperty('--delay', pos.delay);
+
+          const img = document.createElement('img');
+          img.alt = item.shortLabel;
+          loadPhotoWithFallback(img, idx);
+
+          const label = document.createElement('span');
+          label.textContent = item.shortLabel;
+
+          bubble.appendChild(img);
+          bubble.appendChild(label);
+
+          bubble.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openLightbox(idx);
+          });
+
+          anchor.appendChild(bubble);
+          floatingMemories.appendChild(anchor);
+        });
+      }
+
+      cardPolaroidStage.addEventListener('click', () => {
+        ensureAudioContext();
+        playMusicBoxNote(880, 0.5, 0.035, 0);
+        renderCardPolaroid(currentCardPhotoIdx + 1, true);
+      });
+
+      function openLightbox(index) {
+        const total = USER_CONFIG.photos.length;
+        currentLightboxIdx = (index + total) % total;
+        const item = USER_CONFIG.photos[currentLightboxIdx];
+
+        loadPhotoWithFallback(lightboxImg, currentLightboxIdx);
+        lightboxDate.textContent = item.date;
+        lightboxCaption.textContent = `“${item.caption}”`;
+        lightboxBackdrop.classList.add('active');
+      }
+
+      function closeLightbox() {
+        lightboxBackdrop.classList.remove('active');
+      }
+
+      btnCloseLightbox.addEventListener('click', closeLightbox);
+      lightboxBackdrop.addEventListener('click', (e) => {
+        if (e.target === lightboxBackdrop) closeLightbox();
+      });
+
+      btnPrevPhoto.addEventListener('click', () => openLightbox(currentLightboxIdx - 1));
+      btnNextPhoto.addEventListener('click', () => openLightbox(currentLightboxIdx + 1));
+      btnOpenGallery.addEventListener('click', () => openLightbox(0));
+
+      initPhotoComponents();
+
+      /* ==========================================================================
+         ENGINE CANVAS SIÊU MƯỢT 60FPS/120FPS + 3 TÍNH NĂNG MỚI:
+         1. Hứng Hoa (Catching Game)
+         2. Bói Hoa (Flower Tarot)
+         3. Nguyện Ước (Starry Night Mode + Floating Sky Lanterns)
+      ========================================================================== */
+      const canvas = document.getElementById('gardenCanvas');
+      const ctx = canvas.getContext('2d', { alpha: false });
+
+      const introHeader = document.getElementById('introHeader');
+      const statusCaption = document.getElementById('statusCaption');
+      const cardBackdrop = document.getElementById('cardBackdrop');
+      const bottomControls = document.getElementById('bottomControls');
+      const btnViewGarden = document.getElementById('btnViewGarden');
+      const btnReopenCard = document.getElementById('btnReopenCard');
+      const btnRebloom = document.getElementById('btnRebloom');
+
+      // Nút và giao diện 3 tính năng mới
+      const btnCatchGame = document.getElementById('btnCatchGame');
+      const btnFlowerTarot = document.getElementById('btnFlowerTarot');
+      const btnWishLantern = document.getElementById('btnWishLantern');
+
+      const catchHud = document.getElementById('catchHud');
+      const catchScoreText = document.getElementById('catchScoreText');
+      const catchProgressFill = document.getElementById('catchProgressFill');
+      const btnStopCatch = document.getElementById('btnStopCatch');
+      const catchRewardModal = document.getElementById('catchRewardModal');
+      const btnPlayCatchAgain = document.getElementById('btnPlayCatchAgain');
+      const btnCloseCatchReward = document.getElementById('btnCloseCatchReward');
+
+      const tarotBackdrop = document.getElementById('tarotBackdrop');
+      const tarotGrid = document.getElementById('tarotGrid');
+      const tarotReadingTitle = document.getElementById('tarotReadingTitle');
+      const tarotReadingText = document.getElementById('tarotReadingText');
+      const btnCloseTarot = document.getElementById('btnCloseTarot');
+      const btnShuffleTarot = document.getElementById('btnShuffleTarot');
+      const btnDoneTarot = document.getElementById('btnDoneTarot');
+
+      const wishPanel = document.getElementById('wishPanel');
+      const wishForm = document.getElementById('wishForm');
+      const wishInput = document.getElementById('wishInput');
+      const wishPresets = document.getElementById('wishPresets');
+      const btnCloseWishMode = document.getElementById('btnCloseWishMode');
+
+      let width = window.innerWidth;
+      let height = window.innerHeight;
+      let dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+
+      const PALETTES = {
+        heroPink: {
+          core: [216, 48, 92],
+          mid: [255, 114, 149],
+          outer: [255, 188, 206],
+          edge: [255, 236, 242]
+        },
+        roseRed: {
+          core: [198, 42, 75],
+          mid: [242, 92, 120],
+          outer: [255, 166, 182],
+          edge: [255, 224, 230]
+        },
+        blushPink: {
+          core: [226, 84, 126],
+          mid: [255, 148, 178],
+          outer: [255, 208, 222],
+          edge: [255, 244, 248]
+        },
+        peachApricot: {
+          core: [228, 102, 76],
+          mid: [255, 158, 128],
+          outer: [255, 212, 192],
+          edge: [255, 242, 234]
+        },
+        butterYellow: {
+          core: [224, 152, 56],
+          mid: [252, 204, 116],
+          outer: [255, 234, 182],
+          edge: [255, 250, 230]
+        },
+        lavender: {
+          core: [142, 96, 190],
+          mid: [188, 148, 228],
+          outer: [224, 204, 248],
+          edge: [246, 240, 255]
+        },
+        skyMint: {
+          core: [68, 158, 168],
+          mid: [118, 204, 210],
+          outer: [184, 236, 238],
+          edge: [234, 252, 252]
+        },
+        coralWarm: {
+          core: [218, 72, 92],
+          mid: [252, 128, 142],
+          outer: [255, 192, 198],
+          edge: [255, 236, 238]
+        }
+      };
+
+      const PALETTE_KEYS = [
+        'heroPink', 'blushPink', 'peachApricot', 'butterYellow',
+        'lavender', 'skyMint', 'coralWarm', 'roseRed'
+      ];
+
+      // Trạng thái ứng dụng: 'intro' | 'blooming' | 'card' | 'viewing' | 'catching' | 'wishing'
+      const state = {
+        mode: 'intro',
+        nightBlend: 0, // 0 = Ban ngày, 1 = Ban đêm lung linh
+        targetNightBlend: 0,
+        bloomStartTime: 0,
+        cardTimer: null,
+        heroFlower: null,
+        gardenFlowers: [],
+        particles: [],
+        bokehLights: [],
+        twinkleStars: [],
+        // Trò chơi Hứng hoa
+        catchGame: {
+          score: 0,
+          targetScore: 15,
+          basketX: 0,
+          targetBasketX: 0,
+          basketBounce: 0,
+          fallingItems: [],
+          floatingTexts: [],
+          lastSpawnTime: 0
+        },
+        // Đèn trời Nguyện ước
+        skyLanterns: []
+      };
+
+      const clamp = (val, min, max) => Math.max(min, Math.min(max, val));
+      const lerp = (a, b, t) => a + (b - a) * t;
+
+      function easeOutCubic(t) {
+        return 1 - Math.pow(1 - t, 3);
+      }
+
+      function easeOutBack(t) {
+        const c1 = 1.45;
+        const c3 = c1 + 1;
+        return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+      }
+
+      function rgbStr(rgb, alpha = 1) {
+        return `rgba(${Math.round(rgb[0])}, ${Math.round(rgb[1])}, ${Math.round(rgb[2])}, ${alpha})`;
+      }
+
+      function mixColor(c1, c2, t) {
+        return [
+          lerp(c1[0], c2[0], t),
+          lerp(c1[1], c2[1], t),
+          lerp(c1[2], c2[2], t)
+        ];
+      }
+
+      function createPetalBlueprint() {
+        const layers = 7;
+        const petals = [];
+        const goldenAngle = 2.399963229728653;
+
+        for (let l = layers - 1; l >= 0; l--) {
+          const layerRatio = l / (layers - 1);
+          const countInLayer = 5 + Math.floor(layerRatio * 5);
+
+          for (let i = 0; i < countInLayer; i++) {
+            const idx = l * 9 + i;
+            const baseAngle = i * ((Math.PI * 2) / countInLayer) + l * goldenAngle;
+            const jitter = (Math.sin(idx * 12.9898) * 0.5) * 0.18;
+
+            petals.push({
+              layerRatio,
+              angle: baseAngle + jitter,
+              distRatio: Math.pow(layerRatio, 0.92) * 0.62,
+              radiusRatio: 0.22 + layerRatio * 0.48,
+              widthScale: 1.08 + (1 - layerRatio) * 0.12,
+              heightScale: 0.78 + layerRatio * 0.18,
+              curl: (i % 2 === 0 ? 1 : -1) * (0.08 + layerRatio * 0.06)
+            });
+          }
+        }
+        return petals;
+      }
+
+      const SHARED_PETAL_BLUEPRINT = createPetalBlueprint();
+
+      const SPRITES = {
+        bgCanvas: null,
+        nightBgCanvas: null,
+        roses: {},
+        buds: {},
+        leaf: null,
+        basket: null,
+        lantern: null,
+        bokeh: [],
+        particles: []
+      };
+
+      function buildAllSprites() {
+        const sDpr = 1.5;
+
+        // 1. Pre-render 8 màu Hoa Hồng
+        const refRoseR = 60;
+        const roseCanvasSize = Math.ceil(refRoseR * 2.6);
+
+        for (const key of PALETTE_KEYS) {
+          const pal = PALETTES[key];
+          const off = document.createElement('canvas');
+          off.width = Math.ceil(roseCanvasSize * sDpr);
+          off.height = Math.ceil(roseCanvasSize * sDpr);
+          const octx = off.getContext('2d');
+          octx.scale(sDpr, sDpr);
+          octx.translate(roseCanvasSize * 0.5, roseCanvasSize * 0.5);
+
+          const R = refRoseR;
+
+          const auraGrad = octx.createRadialGradient(0, 0, R * 0.2, 0, 0, R * 1.25);
+          auraGrad.addColorStop(0, rgbStr(pal.mid, 0.32));
+          auraGrad.addColorStop(0.7, rgbStr(pal.outer, 0.14));
+          auraGrad.addColorStop(1, rgbStr(pal.outer, 0));
+          octx.fillStyle = auraGrad;
+          octx.beginPath();
+          octx.arc(0, 0, R * 1.25, 0, Math.PI * 2);
+          octx.fill();
+
+          const baseGrad = octx.createRadialGradient(0, 0, R * 0.05, 0, 0, R * 0.98);
+          baseGrad.addColorStop(0, rgbStr(pal.core));
+          baseGrad.addColorStop(0.55, rgbStr(pal.mid));
+          baseGrad.addColorStop(1, rgbStr(pal.outer));
+          octx.fillStyle = baseGrad;
+          octx.beginPath();
+          octx.arc(0, 0, R * 0.92, 0, Math.PI * 2);
+          octx.fill();
+
+          for (let i = 0; i < SHARED_PETAL_BLUEPRINT.length; i++) {
+            const p = SHARED_PETAL_BLUEPRINT[i];
+            const lr = p.layerRatio;
+            const dist = p.distRatio * R;
+            const pr = p.radiusRatio * R;
+            const px = Math.cos(p.angle) * dist;
+            const py = Math.sin(p.angle) * dist;
+
+            let innerCol, outerCol;
+            if (lr < 0.4) {
+              const t = lr / 0.4;
+              innerCol = mixColor(pal.core, pal.mid, t * 0.7);
+              outerCol = mixColor(pal.mid, pal.outer, t);
+            } else {
+              const t = (lr - 0.4) / 0.6;
+              innerCol = mixColor(pal.mid, pal.outer, t * 0.85);
+              outerCol = mixColor(pal.outer, pal.edge, t);
+            }
+
+            octx.save();
+            octx.translate(px, py);
+            octx.rotate(p.angle + Math.PI / 2 + p.curl);
+
+            const w = pr * p.widthScale;
+            const h = pr * p.heightScale;
+
+            const pGrad = octx.createLinearGradient(0, h * 0.35, 0, -h * 0.95);
+            pGrad.addColorStop(0, rgbStr(innerCol, 0.94));
+            pGrad.addColorStop(0.65, rgbStr(outerCol, 0.96));
+            pGrad.addColorStop(1, rgbStr(pal.edge, 0.98));
+
+            octx.fillStyle = pGrad;
+            octx.beginPath();
+            octx.moveTo(-w * 0.85, h * 0.15);
+            octx.bezierCurveTo(-w * 1.05, -h * 0.65, -w * 0.32, -h * 1.05, 0, -h * 0.92);
+            octx.bezierCurveTo(w * 0.32, -h * 1.05, w * 1.05, -h * 0.65, w * 0.85, h * 0.15);
+            octx.bezierCurveTo(w * 0.45, h * 0.65, -w * 0.45, h * 0.65, -w * 0.85, h * 0.15);
+            octx.closePath();
+            octx.fill();
+
+            octx.strokeStyle = rgbStr(pal.edge, 0.55 + lr * 0.25);
+            octx.lineWidth = 1.0;
+            octx.stroke();
+
+            octx.restore();
+          }
+
+          octx.strokeStyle = rgbStr(pal.edge, 0.78);
+          octx.lineWidth = 1.25;
+          octx.beginPath();
+          for (let a = 0; a < Math.PI * 3.4; a += 0.25) {
+            const sr = (a / (Math.PI * 3.4)) * R * 0.16;
+            const sx = Math.cos(a) * sr;
+            const sy = Math.sin(a) * sr;
+            if (a === 0) octx.moveTo(sx, sy);
+            else octx.lineTo(sx, sy);
+          }
+          octx.stroke();
+
+          SPRITES.roses[key] = off;
+        }
+
+        // 2. Pre-render 8 màu Nụ Hoa Hồng
+        const refBudR = 24;
+        const budCanvasSize = Math.ceil(refBudR * 2.8);
+        for (const key of PALETTE_KEYS) {
+          const pal = PALETTES[key];
+          const off = document.createElement('canvas');
+          off.width = Math.ceil(budCanvasSize * sDpr);
+          off.height = Math.ceil(budCanvasSize * sDpr);
+          const octx = off.getContext('2d');
+          octx.scale(sDpr, sDpr);
+          octx.translate(budCanvasSize * 0.5, budCanvasSize * 0.5);
+
+          const r = refBudR;
+          octx.fillStyle = '#5f9e77';
+          octx.beginPath();
+          octx.arc(0, r * 0.25, r * 0.55, 0, Math.PI, false);
+          octx.fill();
+
+          const budGrad = octx.createRadialGradient(-r * 0.2, -r * 0.3, r * 0.1, 0, 0, r * 1.2);
+          budGrad.addColorStop(0, rgbStr(pal.edge));
+          budGrad.addColorStop(0.55, rgbStr(pal.mid));
+          budGrad.addColorStop(1, rgbStr(pal.core));
+
+          octx.fillStyle = budGrad;
+          octx.beginPath();
+          octx.moveTo(0, -r * 1.15);
+          octx.bezierCurveTo(r * 0.95, -r * 0.5, r * 0.85, r * 0.65, 0, r * 0.65);
+          octx.bezierCurveTo(-r * 0.85, r * 0.65, -r * 0.95, -r * 0.5, 0, -r * 1.15);
+          octx.closePath();
+          octx.fill();
+
+          octx.strokeStyle = rgbStr(pal.edge, 0.75);
+          octx.lineWidth = 1;
+          octx.stroke();
+
+          SPRITES.buds[key] = off;
+        }
+
+        // 3. Pre-render Chiếc Lá
+        const leafW = 36;
+        const leafH = 28;
+        const leafOff = document.createElement('canvas');
+        leafOff.width = Math.ceil(leafW * sDpr);
+        leafOff.height = Math.ceil(leafH * sDpr);
+        const lctx = leafOff.getContext('2d');
+        lctx.scale(sDpr, sDpr);
+        lctx.translate(2, leafH * 0.5);
+
+        const size = 30;
+        const leafGrad = lctx.createLinearGradient(0, 0, size, 0);
+        leafGrad.addColorStop(0, '#4f8a69');
+        leafGrad.addColorStop(1, '#7bb892');
+        lctx.fillStyle = leafGrad;
+        lctx.beginPath();
+        lctx.moveTo(0, 0);
+        lctx.quadraticCurveTo(size * 0.48, -size * 0.36, size, 0);
+        lctx.quadraticCurveTo(size * 0.48, size * 0.36, 0, 0);
+        lctx.closePath();
+        lctx.fill();
+
+        lctx.strokeStyle = 'rgba(230, 250, 235, 0.45)';
+        lctx.lineWidth = 0.9;
+        lctx.beginPath();
+        lctx.moveTo(2, 0);
+        lctx.lineTo(size * 0.78, 0);
+        lctx.stroke();
+        SPRITES.leaf = leafOff;
+
+        // 4. Pre-render Giỏ Mây Thắt Nơ Hồng (Cho trò chơi Hứng Hoa)
+        const bskW = 140;
+        const bskH = 110;
+        const bskOff = document.createElement('canvas');
+        bskOff.width = Math.ceil(bskW * sDpr);
+        bskOff.height = Math.ceil(bskH * sDpr);
+        const kctx = bskOff.getContext('2d');
+        kctx.scale(sDpr, sDpr);
+        kctx.translate(bskW * 0.5, bskH * 0.55);
+
+        // Quai giỏ mây
+        kctx.strokeStyle = '#c89666';
+        kctx.lineWidth = 5;
+        kctx.beginPath();
+        kctx.arc(0, -4, 42, Math.PI, 0, false);
+        kctx.stroke();
+
+        // Thân giỏ mây
+        const bskGrad = kctx.createLinearGradient(0, -10, 0, 38);
+        bskGrad.addColorStop(0, '#e8bc8a');
+        bskGrad.addColorStop(1, '#c48c58');
+        kctx.fillStyle = bskGrad;
+        kctx.beginPath();
+        kctx.moveTo(-48, -8);
+        kctx.lineTo(48, -8);
+        kctx.quadraticCurveTo(42, 34, 28, 36);
+        kctx.lineTo(-28, 36);
+        kctx.quadraticCurveTo(-42, 34, -48, -8);
+        kctx.closePath();
+        kctx.fill();
+
+        // Đường đan giỏ
+        kctx.strokeStyle = 'rgba(135, 82, 38, 0.35)';
+        kctx.lineWidth = 1.5;
+        for (let y = 2; y <= 28; y += 9) {
+          kctx.beginPath();
+          kctx.moveTo(-43 + y * 0.3, y);
+          kctx.lineTo(43 - y * 0.3, y);
+          kctx.stroke();
+        }
+
+        // Viền miệng giỏ
+        kctx.fillStyle = '#d9a472';
+        kctx.beginPath();
+        kctx.roundRect(-52, -13, 104, 10, 5);
+        kctx.fill();
+
+        // Nơ lụa hồng xinh xắn giữa giỏ
+        kctx.fillStyle = '#ff7a9c';
+        kctx.beginPath();
+        kctx.ellipse(-10, -8, 10, 6, -0.25, 0, Math.PI * 2);
+        kctx.ellipse(10, -8, 10, 6, 0.25, 0, Math.PI * 2);
+        kctx.fill();
+        kctx.fillStyle = '#e04872';
+        kctx.beginPath();
+        kctx.arc(0, -8, 4.5, 0, Math.PI * 2);
+        kctx.fill();
+
+        SPRITES.basket = bskOff;
+
+        // 5. Pre-render Đèn Trời Nguyện Ước Lung Linh (Sky Lantern Sprite)
+        const lanW = 140;
+        const lanH = 160;
+        const lanOff = document.createElement('canvas');
+        lanOff.width = Math.ceil(lanW * sDpr);
+        lanOff.height = Math.ceil(lanH * sDpr);
+        const nctx = lanOff.getContext('2d');
+        nctx.scale(sDpr, sDpr);
+        nctx.translate(lanW * 0.5, lanH * 0.5);
+
+        // Quầng sáng vàng cam ấm áp bao quanh đèn
+        const glowGrad = nctx.createRadialGradient(0, 6, 4, 0, 0, 64);
+        glowGrad.addColorStop(0, 'rgba(255, 230, 150, 0.85)');
+        glowGrad.addColorStop(0.45, 'rgba(255, 165, 70, 0.35)');
+        glowGrad.addColorStop(1, 'rgba(255, 140, 50, 0)');
+        nctx.fillStyle = glowGrad;
+        nctx.beginPath();
+        nctx.arc(0, 0, 64, 0, Math.PI * 2);
+        nctx.fill();
+
+        // Thân đèn trời
+        const bodyGrad = nctx.createRadialGradient(0, 16, 4, 0, -4, 42);
+        bodyGrad.addColorStop(0, '#fff9d6');
+        bodyGrad.addColorStop(0.35, '#ffcf70');
+        bodyGrad.addColorStop(0.75, '#f58838');
+        bodyGrad.addColorStop(1, '#c94b24');
+
+        nctx.fillStyle = bodyGrad;
+        nctx.beginPath();
+        nctx.moveTo(0, -38);
+        nctx.bezierCurveTo(28, -38, 32, -8, 20, 26);
+        nctx.lineTo(-20, 26);
+        nctx.bezierCurveTo(-32, -8, -28, -38, 0, -38);
+        nctx.closePath();
+        nctx.fill();
+
+        // Khung nan giấy mảnh trên đèn
+        nctx.strokeStyle = 'rgba(165, 55, 20, 0.35)';
+        nctx.lineWidth = 1;
+        nctx.beginPath();
+        nctx.moveTo(-11, -35);
+        nctx.quadraticCurveTo(-18, -5, -12, 26);
+        nctx.moveTo(11, -35);
+        nctx.quadraticCurveTo(18, -5, 12, 26);
+        nctx.stroke();
+
+        // Đế đèn và ngọn lửa sáng rực ở tâm đáy
+        nctx.strokeStyle = '#8c381c';
+        nctx.lineWidth = 2;
+        nctx.beginPath();
+        nctx.ellipse(0, 26, 20, 3.5, 0, 0, Math.PI * 2);
+        nctx.stroke();
+
+        const flameGrad = nctx.createRadialGradient(0, 23, 1, 0, 23, 11);
+        flameGrad.addColorStop(0, '#ffffff');
+        flameGrad.addColorStop(0.5, '#ffe07d');
+        flameGrad.addColorStop(1, 'rgba(255, 140, 40, 0)');
+        nctx.fillStyle = flameGrad;
+        nctx.beginPath();
+        nctx.arc(0, 23, 11, 0, Math.PI * 2);
+        nctx.fill();
+
+        SPRITES.lantern = lanOff;
+
+        // 6. Pre-render Bokeh & Hạt Đom Đóm
+        const bokehHues = ['255, 225, 236', '255, 250, 240'];
+        SPRITES.bokeh = bokehHues.map((hue) => {
+          const bOff = document.createElement('canvas');
+          bOff.width = 128;
+          bOff.height = 128;
+          const bctx = bOff.getContext('2d');
+          const g = bctx.createRadialGradient(64, 64, 0, 64, 64, 64);
+          g.addColorStop(0, `rgba(${hue}, 1)`);
+          g.addColorStop(1, `rgba(${hue}, 0)`);
+          bctx.fillStyle = g;
+          bctx.beginPath();
+          bctx.arc(64, 64, 64, 0, Math.PI * 2);
+          bctx.fill();
+          return bOff;
+        });
+
+        const particleColors = ['255, 235, 155', '255, 198, 216'];
+        SPRITES.particles = particleColors.map((col) => {
+          const pOff = document.createElement('canvas');
+          pOff.width = 32;
+          pOff.height = 32;
+          const pctx = pOff.getContext('2d');
+          const g = pctx.createRadialGradient(16, 16, 0, 16, 16, 16);
+          g.addColorStop(0, `rgba(${col}, 1)`);
+          g.addColorStop(1, `rgba(${col}, 0)`);
+          pctx.fillStyle = g;
+          pctx.beginPath();
+          pctx.arc(16, 16, 16, 0, Math.PI * 2);
+          pctx.fill();
+          return pOff;
+        });
+      }
+
+      // Pre-render cả Nền Ban Ngày và Nền Ban Đêm Sao Trời Lung Linh
+      function bakeStaticBackground() {
+        // 1. Nền ban ngày Pastel
+        const bgOff = document.createElement('canvas');
+        bgOff.width = Math.max(1, Math.floor(width * dpr));
+        bgOff.height = Math.max(1, Math.floor(height * dpr));
+        const bctx = bgOff.getContext('2d');
+        bctx.scale(dpr, dpr);
+
+        const bgGrad = bctx.createLinearGradient(0, 0, 0, height);
+        bgGrad.addColorStop(0.0, '#c5e2f6');
+        bgGrad.addColorStop(0.36, '#dcf0f9');
+        bgGrad.addColorStop(0.72, '#f5e7ee');
+        bgGrad.addColorStop(1.0, '#f4d5df');
+        bctx.fillStyle = bgGrad;
+        bctx.fillRect(0, 0, width, height);
+
+        const sunGrad = bctx.createRadialGradient(
+          width * 0.5, height * 0.32, 10,
+          width * 0.5, height * 0.38, Math.max(width, height) * 0.65
+        );
+        sunGrad.addColorStop(0, 'rgba(255, 252, 245, 0.55)');
+        sunGrad.addColorStop(0.5, 'rgba(255, 240, 245, 0.22)');
+        sunGrad.addColorStop(1, 'rgba(255, 240, 245, 0)');
+        bctx.fillStyle = sunGrad;
+        bctx.fillRect(0, 0, width, height);
+
+        SPRITES.bgCanvas = bgOff;
+
+        // 2. Nền ban đêm Đầy Sao & Trăng Sáng cho chế độ Nguyện Ước
+        const nightOff = document.createElement('canvas');
+        nightOff.width = Math.max(1, Math.floor(width * dpr));
+        nightOff.height = Math.max(1, Math.floor(height * dpr));
+        const nctx = nightOff.getContext('2d');
+        nctx.scale(dpr, dpr);
+
+        const nightGrad = nctx.createLinearGradient(0, 0, 0, height);
+        nightGrad.addColorStop(0.0, '#090d1f');
+        nightGrad.addColorStop(0.42, '#161b3a');
+        nightGrad.addColorStop(0.78, '#2b2146');
+        nightGrad.addColorStop(1.0, '#3d2647');
+        nctx.fillStyle = nightGrad;
+        nctx.fillRect(0, 0, width, height);
+
+        // Vầng trăng khuyết tỏa sáng dịu dàng góc trên bên trái
+        const moonX = width * 0.18;
+        const moonY = height * 0.18;
+        const moonGlow = nctx.createRadialGradient(moonX, moonY, 8, moonX, moonY, 130);
+        moonGlow.addColorStop(0, 'rgba(255, 245, 210, 0.45)');
+        moonGlow.addColorStop(0.4, 'rgba(255, 230, 185, 0.14)');
+        moonGlow.addColorStop(1, 'rgba(255, 230, 185, 0)');
+        nctx.fillStyle = moonGlow;
+        nctx.beginPath();
+        nctx.arc(moonX, moonY, 130, 0, Math.PI * 2);
+        nctx.fill();
+
+        nctx.fillStyle = '#fff8de';
+        nctx.beginPath();
+        nctx.arc(moonX, moonY, 24, 0, Math.PI * 2);
+        nctx.fill();
+
+        nctx.fillStyle = '#10152f';
+        nctx.beginPath();
+        nctx.arc(moonX + 9, moonY - 6, 21, 0, Math.PI * 2);
+        nctx.fill();
+
+        // Vẽ 110 ngôi sao tĩnh trên bầu trời đêm
+        for (let i = 0; i < 110; i++) {
+          const sx = Math.random() * width;
+          const sy = Math.random() * (height * 0.68);
+          const sr = 0.6 + Math.random() * 1.4;
+          nctx.fillStyle = `rgba(255, 248, 230, ${0.28 + Math.random() * 0.62})`;
+          nctx.beginPath();
+          nctx.arc(sx, sy, sr, 0, Math.PI * 2);
+          nctx.fill();
+        }
+
+        SPRITES.nightBgCanvas = nightOff;
+      }
+
+      function initAtmosphere() {
+        state.particles = [];
+        state.bokehLights = [];
+        state.twinkleStars = [];
+
+        const bokehCount = 16;
+        for (let i = 0; i < bokehCount; i++) {
+          state.bokehLights.push({
+            x: Math.random() * width,
+            y: Math.random() * height,
+            r: 45 + Math.random() * 105,
+            alpha: 0.08 + Math.random() * 0.15,
+            phase: Math.random() * Math.PI * 2,
+            speed: 0.2 + Math.random() * 0.4,
+            spriteIdx: i % 2
+          });
+        }
+
+        const particleCount = 48;
+        for (let i = 0; i < particleCount; i++) {
+          state.particles.push({
+            x: Math.random() * width,
+            y: Math.random() * height,
+            r: 1.4 + Math.random() * 2.5,
+            vy: -(0.18 + Math.random() * 0.42),
+            vx: (Math.random() - 0.5) * 0.25,
+            phase: Math.random() * Math.PI * 2,
+            spriteIdx: i % 2
+          });
+        }
+
+        // Các ngôi sao lấp lánh ban đêm
+        for (let i = 0; i < 28; i++) {
+          state.twinkleStars.push({
+            x: Math.random() * width,
+            y: Math.random() * (height * 0.62),
+            size: 1.5 + Math.random() * 2.2,
+            phase: Math.random() * Math.PI * 2,
+            speed: 1.5 + Math.random() * 2.5
+          });
+        }
+      }
+
+      function computeRoseTargets() {
+        const isMobile = width < 640;
+        const heroScale = isMobile ? 0.82 : 1;
+
+        state.heroFlower = {
+          isHero: true,
+          type: 'rose',
+          x: width * 0.5,
+          baseY: height + 10,
+          stemHeight: Math.min(height * 0.45, 340 * heroScale),
+          radius: 58 * heroScale,
+          paletteKey: 'heroPink',
+          swayAmp: 7,
+          swaySpeed: 1.15,
+          phase: 0.4,
+          curveBend: -12,
+          delay: 0,
+          duration: 1000,
+          z: 0.72,
+          leaves: [
+            { t: 0.42, dir: -1, size: 28 * heroScale, angle: -0.48 },
+            { t: 0.63, dir: 1, size: 26 * heroScale, angle: 0.44 }
+          ]
+        };
+
+        const garden = [];
+        const totalFlowers = isMobile ? 46 : 70;
+
+        for (let i = 0; i < totalFlowers; i++) {
+          const normX = i / (totalFlowers - 1);
+          const jitterX = (Math.random() - 0.5) * (width / totalFlowers) * 1.6;
+          let x = normX * width + jitterX;
+          x = clamp(x, 18, width - 18);
+
+          const z = Math.pow(Math.random(), 0.95);
+          const isBud = Math.random() < 0.17;
+
+          const distFromCenter = Math.abs(x - width * 0.5);
+          let heightFactor = 0.16 + (1 - z) * 0.28 + Math.random() * 0.14;
+          if (distFromCenter < 85 && z > 0.55) {
+            heightFactor *= 0.68;
+          }
+
+          const stemHeight = height * heightFactor * (isMobile ? 0.88 : 1);
+          const baseRadius = isBud
+            ? lerp(11, 20, z) * heroScale
+            : lerp(24, 52, z) * heroScale;
+
+          const paletteKey = PALETTE_KEYS[(i + Math.floor(Math.random() * 3)) % PALETTE_KEYS.length];
+          const centerNormalized = Math.abs(normX - 0.5) * 2;
+          const delay = 80 + centerNormalized * 650 + Math.random() * 680;
+          const duration = 1250 + Math.random() * 650;
+
+          const leafCount = isBud ? 1 : 2;
+          const leaves = [];
+          for (let l = 0; l < leafCount; l++) {
+            const dir = (i + l) % 2 === 0 ? 1 : -1;
+            leaves.push({
+              t: 0.35 + l * 0.24 + Math.random() * 0.08,
+              dir,
+              size: lerp(13, 24, z) * heroScale,
+              angle: dir * (0.42 + Math.random() * 0.22)
+            });
+          }
+
+          garden.push({
+            isHero: false,
+            type: isBud ? 'bud' : 'rose',
+            x,
+            baseY: height + 15 + (1 - z) * 18,
+            stemHeight,
+            radius: baseRadius,
+            paletteKey,
+            swayAmp: lerp(4, 13, 1 - z * 0.4),
+            swaySpeed: 0.85 + Math.random() * 0.75,
+            phase: Math.random() * Math.PI * 2,
+            curveBend: (Math.random() - 0.5) * 34,
+            delay,
+            duration,
+            z,
+            leaves
+          });
+        }
+
+        garden.sort((a, b) => a.z - b.z);
+        state.gardenFlowers = garden;
+      }
+
+      function drawBackground(time) {
+        if (SPRITES.bgCanvas) {
+          ctx.drawImage(SPRITES.bgCanvas, 0, 0, width, height);
+        }
+
+        // Chuyển mượt sang bầu trời đêm khi ở chế độ Nguyện Ước
+        state.nightBlend = lerp(state.nightBlend, state.targetNightBlend, 0.05);
+        if (state.nightBlend > 0.005 && SPRITES.nightBgCanvas) {
+          ctx.globalAlpha = state.nightBlend;
+          ctx.drawImage(SPRITES.nightBgCanvas, 0, 0, width, height);
+
+          // Vẽ các ngôi sao lấp lánh
+          ctx.fillStyle = '#fff9e6';
+          for (const st of state.twinkleStars) {
+            const tw = (Math.sin(time * st.speed + st.phase) + 1) * 0.5;
+            ctx.globalAlpha = state.nightBlend * (0.25 + tw * 0.75);
+            ctx.beginPath();
+            ctx.arc(st.x, st.y, st.size * (0.7 + tw * 0.4), 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.globalAlpha = 1;
+        }
+
+        // Bokeh dịu nhẹ
+        const bokehFactor = 1 - state.nightBlend * 0.55;
+        for (const b of state.bokehLights) {
+          const pulse = 0.85 + 0.15 * Math.sin(time * b.speed + b.phase);
+          const rad = b.r * pulse;
+          const sprite = SPRITES.bokeh[b.spriteIdx];
+          ctx.globalAlpha = b.alpha * bokehFactor;
+          ctx.drawImage(sprite, b.x - rad, b.y - rad, rad * 2, rad * 2);
+        }
+        ctx.globalAlpha = 1;
+      }
+
+      function projectFlower(f, growth, time) {
+        const sway = Math.sin(time * f.swaySpeed + f.phase) * f.swayAmp * growth;
+        const currentStemH = f.stemHeight * easeOutCubic(growth);
+
+        const startX = f.x;
+        const startY = f.baseY;
+        const endX = f.x + sway;
+        const endY = f.baseY - currentStemH;
+        const ctrlX = f.x + f.curveBend * growth + sway * 0.45;
+        const ctrlY = f.baseY - currentStemH * 0.52;
+
+        return { startX, startY, ctrlX, ctrlY, endX, endY, sway };
+      }
+
+      function getPointOnStem(proj, t) {
+        const inv = 1 - t;
+        const x = inv * inv * proj.startX + 2 * inv * t * proj.ctrlX + t * t * proj.endX;
+        const y = inv * inv * proj.startY + 2 * inv * t * proj.ctrlY + t * t * proj.endY;
+        return { x, y };
+      }
+
+      function drawLeafSprite(x, y, size, angle, alpha) {
+        if (size <= 1 || !SPRITES.leaf) return;
+        const scale = size / 30;
+        const w = 36 * scale;
+        const h = 28 * scale;
+
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(angle);
+        ctx.globalAlpha = alpha;
+        ctx.drawImage(SPRITES.leaf, -2 * scale, -h * 0.5, w, h);
+        ctx.restore();
+      }
+
+      function drawStem(f, proj, growth, alpha) {
+        ctx.globalAlpha = alpha;
+        ctx.strokeStyle = f.isHero ? '#52946d' : '#589971';
+        ctx.lineWidth = f.isHero ? 3.4 : lerp(1.6, 3.0, f.z);
+        ctx.lineCap = 'round';
+
+        ctx.beginPath();
+        ctx.moveTo(proj.startX, proj.startY);
+        ctx.quadraticCurveTo(proj.ctrlX, proj.ctrlY, proj.endX, proj.endY);
+        ctx.stroke();
+
+        const leafGrowth = clamp((growth - 0.25) / 0.75, 0, 1);
+        if (leafGrowth > 0) {
+          const leafScale = easeOutBack(leafGrowth);
+          for (const leaf of f.leaves) {
+            const pt = getPointOnStem(proj, leaf.t);
+            const leafAngle = leaf.dir > 0 ? leaf.angle : Math.PI + leaf.angle;
+            drawLeafSprite(pt.x, pt.y, leaf.size * leafScale, leafAngle, alpha);
+          }
+        }
+        ctx.globalAlpha = 1;
+      }
+
+      function drawBudSprite(f, x, y, bloomScale, sway, alpha) {
+        const r = f.radius * bloomScale;
+        if (r <= 1) return;
+        const sprite = SPRITES.buds[f.paletteKey];
+        if (!sprite) return;
+
+        const drawSize = r * 2.8;
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(sway * 0.012);
+        ctx.globalAlpha = alpha;
+        ctx.drawImage(sprite, -drawSize * 0.5, -drawSize * 0.5, drawSize, drawSize);
+        ctx.restore();
+      }
+
+      function drawRoseSprite(f, x, y, bloomScale, sway, alpha) {
+        const R = f.radius * bloomScale;
+        if (R <= 1.5) return;
+        const sprite = SPRITES.roses[f.paletteKey];
+        if (!sprite) return;
+
+        const drawSize = R * 2.6;
+        const unfoldSpin = (1 - Math.min(1, bloomScale)) * -0.42;
+
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(sway * 0.008 + f.phase * 0.35 + unfoldSpin);
+        ctx.globalAlpha = alpha;
+        ctx.drawImage(sprite, -drawSize * 0.5, -drawSize * 0.5, drawSize, drawSize);
+        ctx.restore();
+      }
+
+      function drawHeroHintRing(x, y, radius, time) {
+        const pulse = (Math.sin(time * 2.6) + 1) * 0.5;
+        const ringR = radius * (1.12 + pulse * 0.22);
+        const alpha = 0.45 - pulse * 0.28;
+
+        ctx.save();
+        ctx.strokeStyle = `rgba(255, 130, 160, ${alpha})`;
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        ctx.arc(x, y, ringR, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      function renderSingleFlower(f, growth, bloomScale, time) {
+        if (growth <= 0.001) return;
+        const alpha = f.isHero ? 1 : lerp(0.58, 0.98, f.z);
+        const proj = projectFlower(f, growth, time);
+
+        drawStem(f, proj, growth, alpha);
+
+        if (f.type === 'bud') {
+          drawBudSprite(f, proj.endX, proj.endY, bloomScale, proj.sway, alpha);
+        } else {
+          drawRoseSprite(f, proj.endX, proj.endY, bloomScale, proj.sway, alpha);
+        }
+
+        if (f.isHero) {
+          f.currentHeadX = proj.endX;
+          f.currentHeadY = proj.endY;
+        }
+      }
+
+      function drawFloatingParticles(time) {
+        const intensity = state.mode === 'intro' ? 0.45 : (1 + state.nightBlend * 0.35);
+        for (const p of state.particles) {
+          p.y += p.vy * (state.mode === 'intro' ? 0.65 : 1.15);
+          p.x += p.vx + Math.sin(time * 1.2 + p.phase) * 0.18;
+
+          if (p.y < -10) {
+            p.y = height + 10;
+            p.x = Math.random() * width;
+          }
+          if (p.x < -10) p.x = width + 10;
+          if (p.x > width + 10) p.x = -10;
+
+          const twinkle = clamp((0.35 + 0.65 * Math.pow((Math.sin(time * 2.4 + p.phase) + 1) * 0.5, 2)) * intensity, 0, 1);
+          const rad = p.r * (3.5 + state.nightBlend * 1.2);
+          const sprite = SPRITES.particles[p.spriteIdx];
+
+          ctx.globalAlpha = twinkle;
+          ctx.drawImage(sprite, p.x - rad, p.y - rad, rad * 2, rad * 2);
+        }
+        ctx.globalAlpha = 1;
+      }
+
+      /* ==========================================================================
+         TÍNH NĂNG 1: LOGIC TRÒ CHƠI HỨNG HOA (CATCHING GAME)
+      ========================================================================== */
+      const SWEET_CATCH_WORDS = [
+        'Yêu Nị ♡', 'Xinh đẹp ✨', 'Hạnh phúc 🌸', 'Bình yên 🌷',
+        'Rạng rỡ 💖', 'Ngọt ngào 🍬', 'Thương em 💕', 'May mắn 🍀'
+      ];
+
+      function updateCatchScoreUI() {
+        const cg = state.catchGame;
+        catchScoreText.textContent = `Giỏ hoa của Nị: ${cg.score} / ${cg.targetScore} 🌸`;
+        const pct = Math.min(100, (cg.score / cg.targetScore) * 100);
+        catchProgressFill.style.width = `${pct}%`;
+      }
+
+      function startCatchGame() {
+        closeLightbox();
+        tarotBackdrop.classList.remove('active');
+        wishPanel.classList.remove('active');
+        state.targetNightBlend = 0;
+        document.body.classList.remove('night-mode');
+
+        state.mode = 'catching';
+        const cg = state.catchGame;
+        cg.score = 0;
+        cg.basketX = width * 0.5;
+        cg.targetBasketX = width * 0.5;
+        cg.fallingItems = [];
+        cg.floatingTexts = [];
+        cg.lastSpawnTime = performance.now();
+
+        updateCatchScoreUI();
+        floatingMemories.classList.remove('visible');
+        catchHud.classList.add('active');
+        catchRewardModal.classList.remove('active');
+        updateBottomButtonActiveStates();
+      }
+
+      function stopCatchGameToGarden() {
+        state.mode = 'viewing';
+        catchHud.classList.remove('active');
+        catchRewardModal.classList.remove('active');
+        floatingMemories.classList.add('visible');
+        updateBottomButtonActiveStates();
+      }
+
+      function updateAndDrawCatchGame(now, time) {
+        if (state.mode !== 'catching') return;
+        const cg = state.catchGame;
+
+        // Tạo hoa rơi mới mỗi 580ms
+        if (now - cg.lastSpawnTime > 580 && cg.score < cg.targetScore) {
+          cg.lastSpawnTime = now;
+          const paletteKey = PALETTE_KEYS[Math.floor(Math.random() * PALETTE_KEYS.length)];
+          const isSpecial = Math.random() < 0.22;
+          cg.fallingItems.push({
+            x: 45 + Math.random() * (width - 90),
+            y: -35,
+            r: isSpecial ? 28 : 22 + Math.random() * 6,
+            vy: 2.3 + Math.random() * 1.6,
+            swayAmp: 0.8 + Math.random() * 1.2,
+            swaySpeed: 2 + Math.random() * 2,
+            phase: Math.random() * Math.PI * 2,
+            rot: Math.random() * Math.PI * 2,
+            vRot: (Math.random() - 0.5) * 0.04,
+            paletteKey,
+            points: isSpecial ? 2 : 1
+          });
+        }
+
+        // Di chuyển mượt giỏ mây theo chuột / cảm ứng
+        cg.basketX = lerp(cg.basketX, clamp(cg.targetBasketX, 60, width - 60), 0.22);
+        cg.basketBounce = lerp(cg.basketBounce, 0, 0.18);
+        const basketY = height - 108 + cg.basketBounce;
+
+        // Cập nhật và vẽ các bông hoa đang rơi
+        for (let i = cg.fallingItems.length - 1; i >= 0; i--) {
+          const item = cg.fallingItems[i];
+          item.y += item.vy;
+          item.x += Math.sin(time * item.swaySpeed + item.phase) * item.swayAmp;
+          item.rot += item.vRot;
+
+          const sprite = SPRITES.roses[item.paletteKey];
+          if (sprite) {
+            const drawSize = item.r * 2.5;
+            ctx.save();
+            ctx.translate(item.x, item.y);
+            ctx.rotate(item.rot);
+            ctx.drawImage(sprite, -drawSize * 0.5, -drawSize * 0.5, drawSize, drawSize);
+            ctx.restore();
+          }
+
+          // Kiểm tra va chạm với miệng giỏ hoa
+          const dx = Math.abs(item.x - cg.basketX);
+          const dy = Math.abs(item.y - (basketY - 8));
+          if (dx < 54 && dy < 28) {
+            cg.score = Math.min(cg.targetScore, cg.score + item.points);
+            cg.basketBounce = 9;
+            updateCatchScoreUI();
+
+            ensureAudioContext();
+            playMusicBoxNote(item.points > 1 ? 1046.5 : 783.99, 0.55, 0.045, 0);
+
+            const word = SWEET_CATCH_WORDS[Math.floor(Math.random() * SWEET_CATCH_WORDS.length)];
+            cg.floatingTexts.push({
+              x: cg.basketX + (Math.random() - 0.5) * 30,
+              y: basketY - 26,
+              text: `+${item.points} ${word}`,
+              alpha: 1
+            });
+
+            cg.fallingItems.splice(i, 1);
+
+            if (cg.score >= cg.targetScore) {
+              playMagicalChime();
+              setTimeout(() => {
+                if (state.mode === 'catching') {
+                  catchRewardModal.classList.add('active');
+                }
+              }, 350);
+            }
+            continue;
+          }
+
+          if (item.y > height + 50) {
+            cg.fallingItems.splice(i, 1);
+          }
+        }
+
+        // Vẽ chiếc giỏ mây
+        if (SPRITES.basket) {
+          ctx.drawImage(SPRITES.basket, cg.basketX - 70, basketY - 55, 140, 110);
+        }
+
+        // Vẽ chữ nổi ngọt ngào khi hứng trúng hoa
+        ctx.save();
+        ctx.font = '600 15px "Be Vietnam Pro", sans-serif';
+        ctx.textAlign = 'center';
+        for (let i = cg.floatingTexts.length - 1; i >= 0; i--) {
+          const ft = cg.floatingTexts[i];
+          ft.y -= 1.3;
+          ft.alpha -= 0.022;
+          if (ft.alpha <= 0) {
+            cg.floatingTexts.splice(i, 1);
+            continue;
+          }
+          ctx.globalAlpha = ft.alpha;
+          ctx.fillStyle = '#ffffff';
+          ctx.fillText(ft.text, ft.x, ft.y + 1);
+          ctx.fillStyle = '#d63e67';
+          ctx.fillText(ft.text, ft.x, ft.y);
+        }
+        ctx.restore();
+      }
+
+      // Điều khiển giỏ hoa bằng chuột và cảm ứng
+      window.addEventListener('mousemove', (e) => {
+        if (state.mode === 'catching') {
+          state.catchGame.targetBasketX = e.clientX;
+        }
+      });
+
+      window.addEventListener('touchmove', (e) => {
+        if (state.mode === 'catching' && e.touches.length > 0) {
+          state.catchGame.targetBasketX = e.touches[0].clientX;
+        }
+      }, { passive: true });
+
+      window.addEventListener('touchstart', (e) => {
+        if (state.mode === 'catching' && e.touches.length > 0) {
+          state.catchGame.targetBasketX = e.touches[0].clientX;
+        }
+      }, { passive: true });
+
+      btnCatchGame.addEventListener('click', () => {
+        if (state.mode === 'catching') {
+          stopCatchGameToGarden();
+        } else {
+          startCatchGame();
+        }
+      });
+
+      btnStopCatch.addEventListener('click', stopCatchGameToGarden);
+      btnPlayCatchAgain.addEventListener('click', startCatchGame);
+      btnCloseCatchReward.addEventListener('click', stopCatchGameToGarden);
+
+      /* ==========================================================================
+         TÍNH NĂNG 2: BÓI HOA TAROT (FLOWER TAROT)
+      ========================================================================== */
+      function renderTarotDeck() {
+        tarotGrid.innerHTML = '';
+        const shuffled = [...TAROT_CARDS_DATA].sort(() => Math.random() - 0.5);
+
+        shuffled.forEach((card, idx) => {
+          const cardEl = document.createElement('div');
+          cardEl.className = 'tarot-card';
+          cardEl.innerHTML = `
+            <div class="tarot-card-inner">
+              <div class="tarot-face tarot-back">
+                <div class="tarot-back-frame">
+                  <span class="tarot-back-icon">🌸</span>
+                  <span class="tarot-back-label">Quẻ Hoa #${idx + 1}</span>
+                </div>
+              </div>
+              <div class="tarot-face tarot-front">
+                <span class="tarot-flower-icon">${card.icon}</span>
+                <div class="tarot-flower-name">${card.name}</div>
+                <span class="tarot-omen-tag">${card.tag}</span>
+                <p class="tarot-msg">${card.message}</p>
+              </div>
+            </div>
+          `;
+
+          cardEl.addEventListener('click', () => {
+            ensureAudioContext();
+            playMusicBoxNote(659.25 + idx * 55, 0.9, 0.05, 0);
+            cardEl.classList.add('flipped');
+            tarotReadingTitle.textContent = `${card.icon} ${card.name} — ${card.tag}`;
+            tarotReadingText.textContent = card.message;
+          });
+
+          tarotGrid.appendChild(cardEl);
+        });
+      }
+
+      function openFlowerTarot() {
+        if (state.mode === 'catching') {
+          stopCatchGameToGarden();
+        }
+        renderTarotDeck();
+        tarotReadingTitle.textContent = '✨ Chạm vào một lá bài bất kỳ bên dưới ✨';
+        tarotReadingText.textContent = 'Mỗi loài hoa trong khu vườn đều giữ một lời tiên tri ngọt ngào dành riêng cho Nị nhân ngày 20/10.';
+        tarotBackdrop.classList.add('active');
+      }
+
+      function closeFlowerTarot() {
+        tarotBackdrop.classList.remove('active');
+      }
+
+      btnFlowerTarot.addEventListener('click', openFlowerTarot);
+      btnCloseTarot.addEventListener('click', closeFlowerTarot);
+      btnDoneTarot.addEventListener('click', closeFlowerTarot);
+      tarotBackdrop.addEventListener('click', (e) => {
+        if (e.target === tarotBackdrop) closeFlowerTarot();
+      });
+      btnShuffleTarot.addEventListener('click', () => {
+        ensureAudioContext();
+        playMagicalChime();
+        renderTarotDeck();
+        tarotReadingTitle.textContent = '✨ Bài đã được xáo mới! Hãy chọn một lá bài ✨';
+        tarotReadingText.textContent = 'Lắng nghe trái tim và chạm vào lá bài thu hút ánh nhìn của Nị nhất nhé.';
+      });
+
+      /* ==========================================================================
+         TÍNH NĂNG 3: NGUYỆN ƯỚC ĐÊM TRĂNG & THẢ ĐÈN TRỜI (SKY LANTERNS)
+      ========================================================================== */
+      function spawnSkyLantern(wishText, isBackgroundLantern = false) {
+        const scale = isBackgroundLantern ? (0.35 + Math.random() * 0.35) : 0.95;
+        state.skyLanterns.push({
+          x: isBackgroundLantern
+            ? (50 + Math.random() * (width - 100))
+            : (width * 0.5 + (Math.random() - 0.5) * 90),
+          y: isBackgroundLantern
+            ? (height * 0.25 + Math.random() * (height * 0.65))
+            : (height - 130),
+          vy: isBackgroundLantern ? (0.22 + Math.random() * 0.25) : 0.62,
+          swayAmp: isBackgroundLantern ? 0.25 : 0.45,
+          swaySpeed: 0.8 + Math.random() * 0.7,
+          phase: Math.random() * Math.PI * 2,
+          scale,
+          wishText: wishText || '',
+          alpha: isBackgroundLantern ? 0.75 : 1
+        });
+      }
+
+      function enterWishNightMode() {
+        closeLightbox();
+        tarotBackdrop.classList.remove('active');
+        catchHud.classList.remove('active');
+        catchRewardModal.classList.remove('active');
+
+        state.mode = 'wishing';
+        state.targetNightBlend = 1;
+        document.body.classList.add('night-mode');
+        floatingMemories.classList.remove('visible');
+        wishPanel.classList.add('active');
+
+        // Khởi tạo sẵn vài chiếc đèn trời lung linh ở xa nếu bầu trời chưa có đèn
+        if (state.skyLanterns.length === 0) {
+          for (let i = 0; i < 6; i++) {
+            spawnSkyLantern('', true);
+          }
+          spawnSkyLantern('Chúc Nị 20/10 luôn hạnh phúc ♡', false);
+        }
+
+        updateBottomButtonActiveStates();
+      }
+
+      function exitWishNightMode() {
+        state.mode = 'viewing';
+        state.targetNightBlend = 0;
+        document.body.classList.remove('night-mode');
+        wishPanel.classList.remove('active');
+        floatingMemories.classList.add('visible');
+        updateBottomButtonActiveStates();
+      }
+
+      function updateAndDrawSkyLanterns(time) {
+        if (state.nightBlend <= 0.02 || !SPRITES.lantern) return;
+
+        ctx.save();
+        for (let i = state.skyLanterns.length - 1; i >= 0; i--) {
+          const lan = state.skyLanterns[i];
+          lan.y -= lan.vy;
+          lan.x += Math.sin(time * lan.swaySpeed + lan.phase) * lan.swayAmp;
+
+          // Nếu đèn nền bay lên khỏi đỉnh màn hình thì vòng lại từ dưới chân vườn
+          if (lan.y < -110) {
+            if (!lan.wishText) {
+              lan.y = height + 60;
+              lan.x = 50 + Math.random() * (width - 100);
+            } else {
+              lan.y = height + 60;
+            }
+          }
+
+          const w = 140 * lan.scale;
+          const h = 160 * lan.scale;
+          const swayAngle = Math.sin(time * lan.swaySpeed + lan.phase) * 0.05;
+
+          ctx.save();
+          ctx.globalAlpha = lan.alpha * state.nightBlend;
+          ctx.translate(lan.x, lan.y);
+          ctx.rotate(swayAngle);
+          ctx.drawImage(SPRITES.lantern, -w * 0.5, -h * 0.5, w, h);
+          ctx.restore();
+
+          // Hiển thị dòng chữ điều ước đi kèm chiếc đèn của Nị
+          if (lan.wishText) {
+            ctx.save();
+            ctx.globalAlpha = lan.alpha * state.nightBlend;
+            ctx.font = '500 13.5px "Be Vietnam Pro", sans-serif';
+            const textMetrics = ctx.measureText(lan.wishText);
+            const padX = 12;
+            const boxW = textMetrics.width + padX * 2;
+            const boxH = 26;
+            const boxX = lan.x - boxW * 0.5;
+            const boxY = lan.y + 42 * lan.scale;
+
+            ctx.fillStyle = 'rgba(28, 18, 42, 0.78)';
+            ctx.strokeStyle = 'rgba(255, 210, 140, 0.65)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.roundRect(boxX, boxY, boxW, boxH, 13);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#ffebb8';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(lan.wishText, lan.x, boxY + boxH * 0.5);
+            ctx.restore();
+          }
+        }
+        ctx.restore();
+      }
+
+      btnWishLantern.addEventListener('click', () => {
+        if (state.mode === 'wishing') {
+          exitWishNightMode();
+        } else {
+          enterWishNightMode();
+        }
+      });
+
+      btnCloseWishMode.addEventListener('click', exitWishNightMode);
+
+      // Chạm vào chip gợi ý để điền nhanh điều ước
+      wishPresets.addEventListener('click', (e) => {
+        const chip = e.target.closest('.wish-chip');
+        if (!chip) return;
+        wishInput.value = chip.textContent;
+        wishInput.focus();
+      });
+
+      wishForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const text = wishInput.value.trim() || 'Mong mọi điều tốt đẹp luôn đến với Nị ♡';
+        spawnSkyLantern(text, false);
+        wishInput.value = '';
+        ensureAudioContext();
+        playMagicalChime();
+      });
+
+      function updateBottomButtonActiveStates() {
+        btnCatchGame.classList.toggle('active-mode', state.mode === 'catching');
+        btnWishLantern.classList.toggle('active-mode', state.mode === 'wishing');
+      }
+
+      /* ==========================================================================
+         LUỒNG CHÍNH CỦA VƯỜN HOA
+      ========================================================================== */
+      function triggerGardenBloom() {
+        if (state.mode === 'blooming') return;
+
+        startMusicWithFadeIn();
+
+        if (state.cardTimer) {
+          clearTimeout(state.cardTimer);
+          state.cardTimer = null;
+        }
+
+        state.mode = 'blooming';
+        state.targetNightBlend = 0;
+        document.body.classList.remove('night-mode');
+        state.bloomStartTime = performance.now();
+        canvas.style.cursor = 'default';
+
+        introHeader.classList.add('hidden');
+        cardBackdrop.classList.remove('active');
+        bottomControls.classList.remove('visible');
+        floatingMemories.classList.remove('visible');
+        catchHud.classList.remove('active');
+        catchRewardModal.classList.remove('active');
+        tarotBackdrop.classList.remove('active');
+        wishPanel.classList.remove('active');
+        statusCaption.classList.add('visible');
+        updateBottomButtonActiveStates();
+
+        state.cardTimer = setTimeout(() => {
+          if (state.mode === 'blooming') {
+            state.mode = 'card';
+            statusCaption.classList.remove('visible');
+            cardBackdrop.classList.add('active');
+          }
+        }, 2900);
+      }
+
+      function isPointNearHeroFlower(clientX, clientY) {
+        const hero = state.heroFlower;
+        if (!hero) return false;
+        const headX = hero.currentHeadX || hero.x;
+        const headY = hero.currentHeadY || (hero.baseY - hero.stemHeight);
+        const dx = clientX - headX;
+        const dy = clientY - headY;
+        const hitRadius = hero.radius * 1.65;
+        const onFlower = (dx * dx + dy * dy) <= hitRadius * hitRadius;
+        const onStem = Math.abs(clientX - hero.x) < 48 && clientY >= headY && clientY <= hero.baseY;
+        return onFlower || onStem;
+      }
+
+      canvas.addEventListener('mousemove', (e) => {
+        if (state.mode !== 'intro') return;
+        canvas.style.cursor = isPointNearHeroFlower(e.clientX, e.clientY) ? 'pointer' : 'default';
+      });
+
+      canvas.addEventListener('click', (e) => {
+        if (state.mode === 'intro') {
+          if (isPointNearHeroFlower(e.clientX, e.clientY) || window.innerWidth < 640) {
+            triggerGardenBloom();
+          }
+        }
+      });
+
+      btnViewGarden.addEventListener('click', () => {
+        state.mode = 'viewing';
+        cardBackdrop.classList.remove('active');
+        bottomControls.classList.add('visible');
+        floatingMemories.classList.add('visible');
+        updateBottomButtonActiveStates();
+      });
+
+      btnReopenCard.addEventListener('click', () => {
+        state.mode = 'card';
+        state.targetNightBlend = 0;
+        document.body.classList.remove('night-mode');
+        bottomControls.classList.remove('visible');
+        floatingMemories.classList.remove('visible');
+        catchHud.classList.remove('active');
+        wishPanel.classList.remove('active');
+        tarotBackdrop.classList.remove('active');
+        cardBackdrop.classList.add('active');
+        updateBottomButtonActiveStates();
+      });
+
+      btnRebloom.addEventListener('click', () => {
+        computeRoseTargets();
+        triggerGardenBloom();
+      });
+
+      function resizeCanvas() {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+
+        canvas.width = Math.floor(width * dpr);
+        canvas.height = Math.floor(height * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        bakeStaticBackground();
+        initAtmosphere();
+        computeRoseTargets();
+        initPhotoComponents();
+      }
+
+      window.addEventListener('resize', resizeCanvas);
+
+      function animate(now) {
+        const time = now * 0.001;
+        drawBackground(time);
+
+        // Vẽ đèn trời nguyện ước bay phía sau/trên vườn hoa khi ở chế độ ban đêm
+        updateAndDrawSkyLanterns(time);
+
+        const hero = state.heroFlower;
+
+        if (state.mode === 'intro') {
+          if (hero) {
+            const proj = projectFlower(hero, 1, time);
+            drawHeroHintRing(proj.endX, proj.endY, hero.radius, time);
+            renderSingleFlower(hero, 1, 1, time);
+          }
+        } else {
+          const elapsed = now - state.bloomStartTime;
+          let heroRendered = false;
+
+          for (const f of state.gardenFlowers) {
+            if (!heroRendered && hero && f.z > hero.z) {
+              renderSingleFlower(hero, 1, 1, time);
+              heroRendered = true;
+            }
+
+            const localT = clamp((elapsed - f.delay) / f.duration, 0, 1);
+            if (localT > 0) {
+              const stemGrowth = easeOutCubic(clamp(localT * 1.15, 0, 1));
+              const bloomProgress = clamp((localT - 0.12) / 0.88, 0, 1);
+              const bloomScale = easeOutBack(bloomProgress);
+              renderSingleFlower(f, stemGrowth, bloomScale, time);
+            }
+          }
+
+          if (!heroRendered && hero) {
+            renderSingleFlower(hero, 1, 1, time);
+          }
+        }
+
+        // Vẽ trò chơi Hứng Hoa nếu đang bật
+        updateAndDrawCatchGame(now, time);
+
+        drawFloatingParticles(time);
+
+        requestAnimationFrame(animate);
+      }
+
+      window.onload = () => {
+        buildAllSprites();
+        resizeCanvas();
+        requestAnimationFrame(animate);
+      };
+    })();
+  </script>
 </body>
 </html>
